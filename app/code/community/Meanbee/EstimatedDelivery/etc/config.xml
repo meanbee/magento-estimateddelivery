@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Meanbee_EstimatedDelivery>
+            <version>0.0.1</version>
+        </Meanbee_EstimatedDelivery>
+    </modules>
+    <global>
+        <helpers>
+            <meanbee_estimateddelivery>
+                <class>Meanbee_EstimatedDelivery_Helper</class>
+            </meanbee_estimateddelivery>
+        </helpers>
+    </global>
+</config>
