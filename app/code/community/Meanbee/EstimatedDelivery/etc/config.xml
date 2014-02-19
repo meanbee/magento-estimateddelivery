@@ -63,7 +63,7 @@
                 <children>
                     <meanbee_estimateddelivery translate="title">
                         <title>Manage Estimated Delivery Dates</title>
-                        <action>adminhtml/estimateddelivery/view</action>
+                        <action>adminhtml/estimateddelivery/index</action>
                         <sort_order>200</sort_order>
                     </meanbee_estimateddelivery>
                 </children>

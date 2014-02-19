@@ -2,20 +2,22 @@
 
 class Meanbee_EstimatedDelivery_EstimateddeliveryController extends Mage_Adminhtml_Controller_Action {
 
-    public function viewAction() {
+    public function indexAction() {
         $this->_title('Estimated Delivery');
 
-        $this->loadLayout();
+        $this->_loadLayout();
         $this->renderLayout();
     }
 
     public function editAction() {
         $this->_title('Edit Estimated Delivery');
 
-        $this->loadLayout()
-            ->_setActiveMenu('sales/meanbee_estimateddelivery')
-        ;
-
+        $this->_loadLayout();
         $this->renderLayout();
+    }
+
+    protected function _loadLayout() {
+        return $this->loadLayout()
+            ->_setActiveMenu('sales/meanbee_estimateddelivery');
     }
 }
