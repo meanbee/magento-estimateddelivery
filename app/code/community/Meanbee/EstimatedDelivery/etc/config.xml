@@ -2,10 +2,32 @@
 <config>
     <modules>
         <Meanbee_EstimatedDelivery>
-            <version>0.0.1</version>
+            <version>1.0.0</version>
         </Meanbee_EstimatedDelivery>
     </modules>
     <global>
+        <models>
+            <meanbee_estimateddelivery>
+                <class>Meanbee_EstimatedDelivery_Model</class>
+                <resourceModel>meanbee_estimateddelivery_resource</resourceModel>
+            </meanbee_estimateddelivery>
+            <meanbee_estimateddelivery_resource>
+                <class>Meanbee_EstimatedDelivery_Model_Resource</class>
+                <entities>
+                    <estimateddelivery>
+                        <table>meanbee_estimateddelivery</table>
+                    </estimateddelivery>
+                </entities>
+            </meanbee_estimateddelivery_resource>
+        </models>
+        <resources>
+            <meanbee_estimateddelivery_setup>
+                <setup>
+                    <module>Meanbee_EstimatedDelivery</module>
+                    <class>Mage_Core_Model_Resource_Setup</class>
+                </setup>
+            </meanbee_estimateddelivery_setup>
+        </resources>
         <blocks>
             <meanbee_estimateddelivery>
                 <class>Meanbee_EstimatedDelivery_Block</class>
