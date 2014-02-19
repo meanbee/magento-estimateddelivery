@@ -1,0 +1,7 @@
+<layout>
+    <adminhtml_estimateddelivery_view>
+        <reference name="content">
+            <block type="meanbee_estimateddelivery/adminhtml_estimateddelivery" name="meanbee.estimateddelivery.grid_container"/>
+        </reference>
+    </adminhtml_estimateddelivery_view>
+</layout>

@@ -6,10 +6,53 @@
         </Meanbee_EstimatedDelivery>
     </modules>
     <global>
+        <blocks>
+            <meanbee_estimateddelivery>
+                <class>Meanbee_EstimatedDelivery_Block</class>
+            </meanbee_estimateddelivery>
+        </blocks>
         <helpers>
             <meanbee_estimateddelivery>
                 <class>Meanbee_EstimatedDelivery_Helper</class>
             </meanbee_estimateddelivery>
         </helpers>
     </global>
+    <admin>
+        <routers>
+            <adminhtml>
+                <args>
+                    <modules>
+                        <meanbee_estimateddelivery before="Mage_Adminhtml">Meanbee_EstimatedDelivery</meanbee_estimateddelivery>
+                    </modules>
+                </args>
+            </adminhtml>
+        </routers>
+    </admin>
+    <adminhtml>
+        <layout>
+            <updates>
+                <meanbee_estimateddelivery>
+                    <file>meanbee/estimated_delivery.xml</file>
+                </meanbee_estimateddelivery>
+            </updates>
+        </layout>
+        <menu>
+            <sales>
+                <children>
+                    <meanbee_estimateddelivery translate="title">
+                        <title>Manage Estimated Delivery Dates</title>
+                        <action>adminhtml/estimateddelivery/view</action>
+                        <sort_order>200</sort_order>
+                    </meanbee_estimateddelivery>
+                </children>
+            </sales>
+        </menu>
+    </adminhtml>
+    <phpunit>
+        <suite>
+            <modules>
+                <Meanbee_EstimatedDelivery/>
+            </modules>
+        </suite>
+    </phpunit>
 </config>
