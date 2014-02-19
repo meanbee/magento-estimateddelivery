@@ -20,6 +20,34 @@ class Meanbee_EstimatedDelivery_EstimateddeliveryController extends Mage_Adminht
         $this->_forward('edit');
     }
 
+    public function saveAction() {
+        if ($postData = $this->getRequest()->getPost()) {
+            $id = $this->getRequest()->getParam('id');
+            $model = Mage::getModel('meanbee_estimateddelivery/estimateddelivery');
+            if ($id) {
+                $model->load($id);
+            }
+            $model->addData($postData);
+
+            try {
+                $model->save();
+
+                Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('checkout')->__('Successfully saved.'));
+                $this->_redirect('*/*/');
+
+                return;
+            }
+            catch (Mage_Core_Exception $e) {
+                Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
+            }
+            catch (Exception $e) {
+                Mage::getSingleton('adminhtml/session')->addError(Mage::helper('checkout')->__('An error occurred while saving.'));
+            }
+
+            $this->_redirectReferer();
+        }
+    }
+
     protected function _loadLayout() {
         return $this->loadLayout()
             ->_setActiveMenu('sales/meanbee_estimateddelivery');
