@@ -39,10 +39,11 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Edit_Form exte
             'required'  => true
         ));
 
-        $fieldset->addField('last_dispatch_time', 'text', array(
+        $fieldset->addField('last_dispatch_time', 'select', array(
             'label'    => 'Latest Dispatch Time',
             'title'    => 'Latest Dispatch Time',
             'name'     => 'last_dispatch_time',
+            'values'   => Mage::getModel('meanbee_estimateddelivery/system_config_source_times')->toOptionArray(),
             'required'  => true
         ));
 
