@@ -4,4 +4,10 @@
             <block type="meanbee_estimateddelivery/adminhtml_estimateddelivery" name="meanbee.estimateddelivery.grid_container"/>
         </reference>
     </adminhtml_estimateddelivery_view>
+
+    <adminhtml_estimateddelivery_edit>
+        <reference name="content">
+            <block type="meanbee_estimateddelivery/adminhtml_estimateddelivery_edit" name="meanbee.estimateddelivery.edit"></block>
+        </reference>
+    </adminhtml_estimateddelivery_edit>
 </layout>

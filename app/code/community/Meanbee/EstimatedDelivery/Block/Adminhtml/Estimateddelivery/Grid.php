@@ -70,16 +70,19 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Grid extends M
     }
 
     public function formatDays($value, $row, $column, $isExport) {
-        $days = array('Mon', 'Tues', 'Weds', 'Thurs', 'Fri', 'Sat', 'Sun');
+        $days = Mage::getModel('adminhtml/system_config_source_locale_weekdays')->toOptionArray();
+        $selectedDays = array();
 
-        foreach ($value as $index => $isEnabled) {
-            if (!$isEnabled) {
-                unset($days[$index]);
-            }
+        foreach ($value as $index) {
+            $selectedDays []= $days[$index]['label'];
         }
 
-        return implode(', ', $days);
+        return implode(', ', $selectedDays);
     }
 
-
+    public function getRowUrl($row) {
+        return $this->getUrl('*/*/edit', array(
+            'id'=> $row->getId())
+        );
+    }
 }
