@@ -8,6 +8,12 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Edit extends M
         $this->_objectId = 'id';
         $this->_controller = 'adminhtml_estimateddelivery';
 
+        $this->_addButton('save_and_continue_edit', array(
+            'class'   => 'save',
+            'label'   => Mage::helper('meanbee_estimateddelivery')->__('Save and Continue Edit'),
+            'onclick' => 'editForm.submit($(\'edit_form\').action + \'back/edit/\')',
+        ), 10);
+
         $this->_updateButton('save', 'label', Mage::helper('rating')->__('Save'));
         $this->_updateButton('delete', 'label', Mage::helper('rating')->__('Delete'));
 

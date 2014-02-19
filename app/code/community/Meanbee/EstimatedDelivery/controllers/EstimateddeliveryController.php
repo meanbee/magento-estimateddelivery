@@ -33,8 +33,13 @@ class Meanbee_EstimatedDelivery_EstimateddeliveryController extends Mage_Adminht
                 $model->save();
 
                 Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('checkout')->__('Successfully saved.'));
-                $this->_redirect('*/*/');
 
+                if ($this->getRequest()->getParam('back')) {
+                    $this->_redirect('*/*/edit', array('id' => $model->getId()));
+                    return;
+                }
+
+                $this->_redirect('*/*/');
                 return;
             }
             catch (Mage_Core_Exception $e) {
