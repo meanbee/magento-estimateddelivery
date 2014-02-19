@@ -16,6 +16,10 @@ class Meanbee_EstimatedDelivery_EstimateddeliveryController extends Mage_Adminht
         $this->renderLayout();
     }
 
+    public function newAction() {
+        $this->_forward('edit');
+    }
+
     protected function _loadLayout() {
         return $this->loadLayout()
             ->_setActiveMenu('sales/meanbee_estimateddelivery');
