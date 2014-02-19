@@ -16,10 +16,11 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Edit_Form exte
             'class'     => 'fieldset-wide',
         ));
 
-        $fieldset->addField('shipping_method', 'text', array(
+        $fieldset->addField('shipping_method', 'select', array(
             'label'    => 'Shipping Method',
             'title'    => 'Shipping Method',
             'name'     => 'shipping_method',
+            'values'    => $this->_getShippingMethods(),
             'required'  => true
         ));
 
@@ -71,5 +72,18 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Edit_Form exte
         $form->setUseContainer(true);
         $this->setForm($form);
         return parent::_prepareForm();
+    }
+
+    protected function _getShippingMethods() {
+        $options = Mage::getModel('adminhtml/system_config_source_shipping_allmethods')->toOptionArray();
+        $values = array();
+        foreach ($options as $option) {
+            if (!isset($option['value']) || !is_array($option['value'])) continue;
+
+            foreach ($option['value'] as $value) {
+                $values []= $value;
+            }
+        }
+        return $values;
     }
 }
