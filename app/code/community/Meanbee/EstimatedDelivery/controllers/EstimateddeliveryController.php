@@ -29,10 +29,20 @@ class Meanbee_EstimatedDelivery_EstimateddeliveryController extends Mage_Adminht
             }
             $model->addData($postData);
 
+            if (($errors = $model->validate()) !== true) {
+                $errorHtml = '';
+                foreach ($errors as $error) {
+                    $errorHtml .= sprintf('<li>%s</li>', $error);
+                }
+                Mage::getSingleton('adminhtml/session')->addError(Mage::helper('meanbee_estimateddelivery')->__('Failed to save: <ul>%s</ul>', $errorHtml));
+                $this->_redirectReferer();
+                return;
+            }
+
             try {
                 $model->save();
 
-                Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('checkout')->__('Successfully saved.'));
+                Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('meanbee_estimateddelivery')->__('Successfully saved.'));
 
                 if ($this->getRequest()->getParam('back')) {
                     $this->_redirect('*/*/edit', array('id' => $model->getId()));
@@ -46,7 +56,7 @@ class Meanbee_EstimatedDelivery_EstimateddeliveryController extends Mage_Adminht
                 Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
             }
             catch (Exception $e) {
-                Mage::getSingleton('adminhtml/session')->addError(Mage::helper('checkout')->__('An error occurred while saving.'));
+                Mage::getSingleton('adminhtml/session')->addError(Mage::helper('meanbee_estimateddelivery')->__('An error occurred while saving.'));
             }
 
             $this->_redirectReferer();

@@ -28,6 +28,7 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Edit_Form exte
             'label'    => 'Dispatch Preparation Time (Days)',
             'title'    => 'Dispatch Preparation Time (Days)',
             'name'     => 'dispatch_preparation',
+            'class'     => 'validate-non-negative-number validate-digits',
             'required'  => true
         ));
 
@@ -51,6 +52,7 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Edit_Form exte
             'label'    => 'Estimated Delivery Days (Lower Bound)',
             'title'    => 'Estimated Delivery Days (Lower Bound)',
             'name'     => 'estimated_delivery_from',
+            'class'     => 'validate-non-negative-number validate-digits',
             'required'  => true
         ));
 
@@ -58,6 +60,7 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Edit_Form exte
             'label'    => 'Estimated Delivery Days (Upper Bound)',
             'title'    => 'Estimated Delivery Days (Upper Bound)',
             'name'     => 'estimated_delivery_to',
+            'class'     => 'validate-non-negative-number validate-digits',
             'required'  => true
         ));
 

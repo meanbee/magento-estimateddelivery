@@ -4,4 +4,18 @@ class Meanbee_EstimatedDelivery_Model_Estimateddelivery extends Mage_Core_Model_
     public function __construct() {
         $this->_init('meanbee_estimateddelivery/estimateddelivery');
     }
+
+    public function validate() {
+        $errors = array();
+
+        if ($this->getEstimatedDeliveryFrom() > $this->getEstimatedDeliveryTo()) {
+            $errors []= Mage::helper('meanbee_estimateddelivery')->__('Estimated delivery from cannot be larger than estimated delivery to');
+        }
+
+        if (empty($errors)) {
+            return true;
+        }
+
+        return $errors;
+    }
 }
