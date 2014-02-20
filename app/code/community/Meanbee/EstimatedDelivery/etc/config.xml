@@ -17,6 +17,9 @@
                     <estimateddelivery>
                         <table>meanbee_estimateddelivery</table>
                     </estimateddelivery>
+                    <estimateddelivery_method>
+                        <table>meanbee_estimateddelivery_method</table>
+                    </estimateddelivery_method>
                 </entities>
             </meanbee_estimateddelivery_resource>
         </models>
