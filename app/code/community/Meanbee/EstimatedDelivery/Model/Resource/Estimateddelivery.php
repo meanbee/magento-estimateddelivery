@@ -29,11 +29,14 @@ class Meanbee_EstimatedDelivery_Model_Resource_Estimateddelivery extends Mage_Co
 
             $data = $read->fetchRow($select);
 
-            if ($data) {
+            if ($data['shipping_methods']) {
                 // Convert the comma separated list into an array
                 $data['shipping_methods'] = explode(',', $data['shipping_methods']);
-                $object->setData($data);
+            } else {
+                $data['shipping_methods'] = array();
             }
+
+            $object->setData($data);
         }
 
         $this->unserializeFields($object);
