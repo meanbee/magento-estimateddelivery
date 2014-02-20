@@ -79,8 +79,14 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Edit_Form exte
     }
 
     protected function _getShippingMethods() {
-        $options = Mage::getModel('adminhtml/system_config_source_shipping_allmethods')->toOptionArray();
         $values = array();
+
+        try {
+            $options = Mage::getModel('adminhtml/system_config_source_shipping_allmethods')->toOptionArray();
+        } catch (Exception $e) {
+            $options = array(array('value' => array('Unable to retreive shipping methods. Try going to System > Configuration > Shipping Methods and click "Save".')));
+        }
+
         foreach ($options as $option) {
             if (!isset($option['value']) || !is_array($option['value'])) continue;
 
