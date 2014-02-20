@@ -2,6 +2,8 @@
 
 class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Grid extends Mage_Adminhtml_Block_Widget_Grid {
 
+    const NUMBER_OF_SHIPPING_METHODS_TO_SHOW = 5;
+
     public function __construct($attributes = array()) {
         parent::__construct($attributes);
 
@@ -17,10 +19,11 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Grid extends M
 
     protected function _prepareColumns() {
 
-        $this->addColumn('shipping_method', array(
-            'header'    => 'Shipping Method',
+        $this->addColumn('shipping_methods', array(
+            'header'    => 'Shipping Method(s)',
             'align'     => 'left',
-            'index'     => 'shipping_method',
+            'frame_callback'    => array($this, 'formatShippingMethods'),
+            'index'     => 'shipping_methods',
         ));
 
         $this->addColumn('dispatch_preparation', array(
@@ -78,6 +81,15 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Grid extends M
         }
 
         return implode(', ', $selectedDays);
+    }
+
+    public function formatShippingMethods($methods, $row, $column, $isExport) {
+        if (count($methods) > self::NUMBER_OF_SHIPPING_METHODS_TO_SHOW) {
+            $methods = array_slice($methods, 0, self::NUMBER_OF_SHIPPING_METHODS_TO_SHOW);
+            return implode(",<br/>", $methods) . ",<br/>...";
+        }
+
+        return implode(",<br/>", $methods);
     }
 
     public function getRowUrl($row) {
