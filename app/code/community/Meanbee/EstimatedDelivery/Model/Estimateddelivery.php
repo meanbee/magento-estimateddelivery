@@ -9,7 +9,7 @@ class Meanbee_EstimatedDelivery_Model_Estimateddelivery extends Mage_Core_Model_
         $errors = array();
 
         if ($this->getEstimatedDeliveryFrom() > $this->getEstimatedDeliveryTo()) {
-            $errors []= Mage::helper('meanbee_estimateddelivery')->__('Estimated delivery from cannot be larger than estimated delivery to');
+            $errors []= Mage::helper('meanbee_estimateddelivery')->__('Estimated Delivery Days (Lower Bound) cannot be larger than Estimated Delivery Days (Upper Bound)');
         }
 
         if (empty($errors)) {
