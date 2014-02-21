@@ -3,7 +3,7 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Edit_Form exte
 
     protected function _prepareForm() {
         $id = $this->getRequest()->getParam('id');
-        $model = Mage::getModel('meanbee_estimateddelivery/estimateddelivery')->load($id);
+        $model = Mage::getModel('meanbee_estimateddelivery/estimateddelivery')->load($id)->addShippingMethods();
 
         $form = new Varien_Data_Form(array(
             'id' => 'edit_form',

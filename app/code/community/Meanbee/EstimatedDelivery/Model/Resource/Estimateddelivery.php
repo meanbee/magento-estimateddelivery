@@ -12,29 +12,34 @@ class Meanbee_EstimatedDelivery_Model_Resource_Estimateddelivery extends Mage_Co
         $this->_methodTable = $this->getTable('meanbee_estimateddelivery/estimateddelivery_method');
     }
 
-    public function load(Mage_Core_Model_Abstract $object, $value, $field = null) {
-        if (is_null($field)) {
-            $field = $this->getIdFieldName();
-        }
-
+    public function loadByShippingMethod(Meanbee_EstimatedDelivery_Model_Estimateddelivery $object, $shippingMethod) {
         $read = $this->_getReadAdapter();
-        if ($read && !is_null($value)) {
-            $select = $this->_getLoadSelect($field, $value, $object);
-
-            $methodSelect = $this->_getReadAdapter()->select()
-                ->from($this->_methodTable)
-                ->where("estimated_delivery_id = {$value}");
+        if ($read) {
+            $select = $read->select()
+                ->from($this->getMainTable())
+                ->joinLeft($this->_methodTable, 'entity_id = estimated_delivery_id', '')
+                ->where("shipping_method = \"{$shippingMethod}\"");
 
             $data = $read->fetchRow($select);
-            $methodData = $read->fetchCol($methodSelect, array('shipping_method'));
-
-            $data['shipping_methods'] = $methodData;
-
             $object->setData($data);
         }
 
         $this->unserializeFields($object);
         $this->_afterLoad($object);
+
+        return $this;
+    }
+
+    public function addShippingMethods(Meanbee_EstimatedDelivery_Model_Estimateddelivery $object) {
+        $read = $this->_getReadAdapter();
+        if ($read) {
+            $methodSelect = $this->_getReadAdapter()->select()
+                ->from($this->_methodTable)
+                ->where("estimated_delivery_id = {$object->getId()}");
+
+            $methodData = $read->fetchCol($methodSelect, array('shipping_method'));
+            $object->setData('shipping_methods', $methodData);
+        }
 
         return $this;
     }
