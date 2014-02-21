@@ -21,20 +21,14 @@ class Meanbee_EstimatedDelivery_Model_Resource_Estimateddelivery extends Mage_Co
         if ($read && !is_null($value)) {
             $select = $this->_getLoadSelect($field, $value, $object);
 
-            // Add our shipping methods from another table into the load select. Retrieve them as a comma separated list.
-            $groupConcat = new Zend_Db_Expr("group_concat(shipping_method separator ',')");
-            $select->columns(array('shipping_methods' => $groupConcat));
-            $select->joinLeft("$this->_methodTable", 'entity_id = estimated_delivery_id', array());
-            $select->group('entity_id');
+            $methodSelect = $this->_getReadAdapter()->select()
+                ->from($this->_methodTable)
+                ->where("estimated_delivery_id = {$value}");
 
             $data = $read->fetchRow($select);
+            $methodData = $read->fetchCol($methodSelect, array('shipping_method'));
 
-            if ($data['shipping_methods']) {
-                // Convert the comma separated list into an array
-                $data['shipping_methods'] = explode(',', $data['shipping_methods']);
-            } else {
-                $data['shipping_methods'] = array();
-            }
+            $data['shipping_methods'] = $methodData;
 
             $object->setData($data);
         }

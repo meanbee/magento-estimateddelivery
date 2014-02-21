@@ -16,10 +16,10 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Edit_Form exte
             'class'     => 'fieldset-wide',
         ));
 
-        $fieldset->addField('shipping_method', 'select', array(
-            'label'    => 'Shipping Method',
-            'title'    => 'Shipping Method',
-            'name'     => 'shipping_method',
+        $fieldset->addField('shipping_methods', 'multiselect', array(
+            'label'    => 'Shipping Methods',
+            'title'    => 'Shipping Methods',
+            'name'     => 'shipping_methods',
             'values'    => $this->_getShippingMethods(),
             'required'  => true
         ));
@@ -84,7 +84,12 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Edit_Form exte
         try {
             $options = Mage::getModel('adminhtml/system_config_source_shipping_allmethods')->toOptionArray();
         } catch (Exception $e) {
-            $options = array(array('value' => array('Unable to retreive shipping methods. Try going to System > Configuration > Shipping Methods and click "Save".')));
+            return array(
+                array('value'=>0,'label'=>'Unable to retreive shipping methods.'),
+                array('value'=>1,'label'=>'Try going to System > Configuration'),
+                array('value'=>2,'label'=>'Click the Shipping Methods tab'),
+                array('value'=>3,'label'=>'then click "Save".')
+            );
         }
 
         foreach ($options as $option) {

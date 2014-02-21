@@ -11,6 +11,9 @@ class Meanbee_EstimatedDelivery_Model_Resource_Estimateddelivery_Collection exte
     protected function _initSelect() {
         parent::_initSelect();
 
+        /* Note that this approach has a maximum value of 1024 bytes, which means that if the grid wishes to show all of
+        the shipping methods, rather than a subset, then this logic will need to be moved out to a separate SQL statement.
+        Similar to how this is done in Meanbee_EstimatedDelivery_Model_Resource_Estimateddelivery::load */
         $groupConcat = new Zend_Db_Expr("group_concat(shipping_method separator ',')");
         $this->_select->columns(array('shipping_methods' => $groupConcat));
         $this->_select->joinLeft("$this->_methodTable", 'entity_id = estimated_delivery_id', array());
