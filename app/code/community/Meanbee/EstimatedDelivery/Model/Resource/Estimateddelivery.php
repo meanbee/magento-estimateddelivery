@@ -18,7 +18,7 @@ class Meanbee_EstimatedDelivery_Model_Resource_Estimateddelivery extends Mage_Co
             $select = $read->select()
                 ->from($this->getMainTable())
                 ->joinLeft($this->_methodTable, 'entity_id = estimated_delivery_id', '')
-                ->where("shipping_method = \"{$shippingMethod}\"");
+                ->where("shipping_method = ?", $shippingMethod);
 
             $data = $read->fetchRow($select);
             $object->setData($data);
@@ -35,7 +35,7 @@ class Meanbee_EstimatedDelivery_Model_Resource_Estimateddelivery extends Mage_Co
         if ($read) {
             $methodSelect = $this->_getReadAdapter()->select()
                 ->from($this->_methodTable)
-                ->where("estimated_delivery_id = {$object->getId()}");
+                ->where("estimated_delivery_id = ?", $object->getId());
 
             $methodData = $read->fetchCol($methodSelect, array('shipping_method'));
             $object->setData('shipping_methods', $methodData);
