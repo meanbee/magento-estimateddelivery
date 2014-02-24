@@ -1,4 +1,5 @@
-<layout>
+<?xml version="1.0"?>
+<layout version="0.1.0">
     <adminhtml_estimateddelivery_index>
         <reference name="content">
             <block type="meanbee_estimateddelivery/adminhtml_estimateddelivery" name="meanbee.estimateddelivery.grid_container"/>
