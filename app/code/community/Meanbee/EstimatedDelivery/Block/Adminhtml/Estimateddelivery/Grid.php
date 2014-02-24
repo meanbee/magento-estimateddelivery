@@ -24,6 +24,8 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Grid extends M
             'align'     => 'left',
             'frame_callback'    => array($this, 'formatShippingMethods'),
             'index'     => 'shipping_methods',
+            'sortable'  => false,
+            'filter'    => false
         ));
 
         $this->addColumn('dispatch_preparation', array(
@@ -38,6 +40,7 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Grid extends M
             'align'     => 'left',
             'index'     => 'dispatchable_days',
             'frame_callback'    => array($this, 'formatDays'),
+            'sortable'  => false,
             'filter'    => false
         ));
 
@@ -45,6 +48,8 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Grid extends M
             'header'    => 'Latest Dispatch Time',
             'align'     => 'left',
             'index'     => 'last_dispatch_time',
+            'sortable'  => false,
+            'filter'    => false
         ));
 
         $this->addColumn('estimated_delivery_from', array(
@@ -62,10 +67,11 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Grid extends M
         ));
 
         $this->addColumn('deliverable_days', array(
-            'header'    => 'Dispatch Preparation Time (days)',
+            'header'    => 'Deliverable Days',
             'align'     => 'left',
             'index'     => 'deliverable_days',
             'frame_callback'    => array($this, 'formatDays'),
+            'sortable'  => false,
             'filter'    => false
         ));
 
