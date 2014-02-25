@@ -16,8 +16,9 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
      */
     public function getEstimatedDeliveryTo($shippingMethod, $date = null) {
         $date = $this->_initDate($date);
+        $cacheKey = $shippingMethod.$date->toString();
 
-        if ($cached = $this->_estimatedDeliveryTo[$shippingMethod.$date->toString()]) {
+        if (isset($this->_estimatedDeliveryTo[$cacheKey]) && $cached = $this->_estimatedDeliveryTo[$cacheKey]) {
             return $cached;
         }
 
@@ -26,7 +27,7 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
         $offset = $estimatedDelivery->getEstimatedDeliveryTo() - $estimatedDelivery->getEstimatedDeliveryFrom();
         $deliveryToDate = $this->_computeEstimatedDelivery($shippingMethod, $deliveryFromDate, $offset);
 
-        $this->_estimatedDeliveryTo[$shippingMethod.$date->toString()] = $deliveryToDate;
+        $this->_estimatedDeliveryTo[$cacheKey] = $deliveryToDate;
 
         return $deliveryToDate;
     }
@@ -41,8 +42,9 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
      */
     public function getEstimatedDeliveryFrom($shippingMethod, $date = null) {
         $date = $this->_initDate($date);
+        $cacheKey = $shippingMethod.$date->toString();
 
-        if ($cached = $this->_estimatedDeliveryFrom[$shippingMethod.$date->toString()]) {
+        if (isset($this->_estimatedDeliveryFrom[$cacheKey]) && $cached = $this->_estimatedDeliveryFrom[$cacheKey]) {
             return $cached;
         }
 
@@ -50,7 +52,7 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
         $estimatedDelivery = $this->_getEstimatedDeliveryData($shippingMethod);
         $deliveryFromDate = $this->_computeEstimatedDelivery($shippingMethod, $dispatchDate, $estimatedDelivery->getEstimatedDeliveryFrom());
 
-        $this->_estimatedDeliveryFrom[$shippingMethod.$date->toString()] = $deliveryFromDate;
+        $this->_estimatedDeliveryFrom[$cacheKey] = $deliveryFromDate;
 
         return $deliveryFromDate;
     }
@@ -64,8 +66,9 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
      */
     public function getDispatchDate($shippingMethod, $date = null) {
         $date = $this->_initDate($date);
+        $cacheKey = $shippingMethod.$date->toString();
 
-        if ($cached = $this->_dispatchDate[$shippingMethod.$date->toString()]) {
+        if (isset($this->_dispatchDate[$cacheKey]) && $cached = $this->_dispatchDate[$cacheKey]) {
             return $cached;
         }
 
@@ -75,9 +78,51 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
         $date = $this->_handleDispatchPreparation($estimatedDelivery, $date);
         $date = $this->_computeClosestValidDate($estimatedDelivery->getDispatchableDays(), $date);
 
-        $this->_dispatchDate[$shippingMethod.$date->toString()] = $date;
+        $this->_dispatchDate[$cacheKey] = $date;
 
         return $date;
+    }
+
+    /**
+     * Helper method around getEstimatedDeliveryFrom which returns the estimated delivery as a formatted date string,
+     * rather than a Zend_Date.
+     *
+     * @param $shippingMethod
+     * @param Zend_Date|null $date
+     * @param string $format
+     * @return string
+     */
+    public function getEstimatedDeliveryFromString($shippingMethod, $date = null, $format = 'EEEE, dSS MMMM') {
+        $result = $this->getEstimatedDeliveryFrom($shippingMethod, $date);
+        return $result->toString($format);
+    }
+
+    /**
+     * Helper method around getEstimatedDeliveryTo which returns the estimated delivery as a formatted date string,
+     * rather than a Zend_Date.
+     *
+     * @param $shippingMethod
+     * @param Zend_Date|null $date
+     * @param string $format
+     * @return string
+     */
+    public function getEstimatedDeliveryToString($shippingMethod, $date = null, $format = 'EEEE, dSS MMMM') {
+        $result = $this->getEstimatedDeliveryTo($shippingMethod, $date);
+        return $result->toString($format);
+    }
+
+    /**
+     * Helper method around getDispatchDate which returns the estimated delivery as a formatted date string,
+     * rather than a Zend_Date.
+     *
+     * @param $shippingMethod
+     * @param Zend_Date|null $date
+     * @param string $format
+     * @return string
+     */
+    public function getDispatchDateString($shippingMethod, $date = null, $format = 'EEEE, dSS MMMM') {
+        $result = $this->getDispatchDate($shippingMethod, $date);
+        return $result->toString($format);
     }
 
     protected function _initDate($date) {
@@ -132,7 +177,7 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
     }
 
     protected function _getEstimatedDeliveryData($shippingMethod) {
-        if ($data = $this->_estimatedDeliveryData[$shippingMethod]) {
+        if (isset($this->_estimatedDeliveryData[$shippingMethod]) && $data = $this->_estimatedDeliveryData[$shippingMethod]) {
             return $data;
         }
         $data = Mage::getModel('meanbee_estimateddelivery/estimateddelivery')->loadByShippingMethod($shippingMethod);
