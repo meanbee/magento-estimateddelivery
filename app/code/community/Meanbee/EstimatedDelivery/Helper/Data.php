@@ -132,11 +132,79 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
         return $result->toString($format);
     }
 
+    /**
+     * Method used to retrieve the number of days from $startdate until the estimated delivery from date.
+     *
+     * @param $shippingMethod
+     * @param Zend_Date $startDate
+     * @return int
+     */
+    public function getDaysUntilEstimatedDeliveryFrom($shippingMethod, $startDate = null) {
+        $endDate = $this->getEstimatedDeliveryFrom($shippingMethod, $startDate);
+        return $this->_getDifferenceInDays($endDate, $startDate);
+
+    }
+
+    /**
+     * Method used to retrieve the number of days from $startdate until the estimated delivery to date.
+     *
+     * @param $shippingMethod
+     * @param Zend_Date $startDate
+     * @return int
+     */
+    public function getDaysUntilEstimatedDeliveryTo($shippingMethod, $startDate = null) {
+        $endDate = $this->getEstimatedDeliveryTo($shippingMethod, $startDate);
+        return $this->_getDifferenceInDays($endDate, $startDate);
+    }
+
+    /**
+     * Method used to retrieve the number of days from $startdate until the dispatch date.
+     *
+     * @param $shippingMethod
+     * @param Zend_Date $startDate
+     * @return int
+     */
+    public function getDaysUntilDispatchDate($shippingMethod, $startDate = null) {
+        $endDate = $this->getDispatchDate($shippingMethod, $startDate);
+        return $this->_getDifferenceInDays($startDate, $endDate);
+    }
+
+    /**
+     * Helper method used to initialise $date to today if set to null
+     *
+     * @param $date
+     * @return Zend_Date
+     */
     protected function _initDate($date) {
         if ($date === null) {
             $date = Mage::app()->getLocale()->date();
         }
         return $date;
+    }
+
+    /**
+     * Helper method to compute the difference in days between two dates. If $startDate is not provided then default to today
+     *
+     * @param $endDate
+     * @param $startDate
+     * @return int
+     */
+    protected function _getDifferenceInDays($endDate, $startDate = null) {
+        $startDate = $this->_initDate($startDate);
+
+        $startDate = clone $startDate;
+        $endDate = clone $endDate;
+
+        $difference = $endDate->sub($startDate);
+
+        $measure = new Zend_Measure_Time($difference->toValue(), Zend_Measure_Time::SECOND);
+        $measure->convertTo(Zend_Measure_Time::DAY);
+
+        // The time to complete the request can take some time, so round it up. This prevents problems like:
+        // You should then receive your order in 4 - 10.9999884259259259259259259 days.
+        $roundedValue = round($measure->getValue());
+
+        return $roundedValue;
     }
 
     /**

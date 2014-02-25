@@ -1,12 +1,14 @@
 <?php /** @var $this Meanbee_EstimatedDelivery_Block_Checkout_Onepage_Success_Estimateddelivery */ ?>
 <?php $_order = $this->getOrder() ?>
+<?php /** @var $_helper Meanbee_EstimatedDelivery_Helper_Data */ ?>
 <?php $_helper = Mage::helper('meanbee_estimateddelivery'); ?>
 <?php $_method = $_order->getShippingMethod(); ?>
+
 <?php if ($_order): ?>
     <div class="estimated_delivery">
         <h2 class="sub-title"><?php echo $this->__('Estimated Delivery') ?></h2>
         <p><?php echo $this->__('Your order should be dispatched on or before %s.', $_helper->getDispatchDateString($_method)) ?></p>
-        <p><?php echo $this->__('You should then receive your order between %s and %s.', $_helper->getEstimatedDeliveryFromString($_method), $_helper->getEstimatedDeliveryToString($_method)) ?></p>
+        <p><?php echo $this->__('You should then receive your order in %s - %s days.', $_helper->getDaysUntilEstimatedDeliveryFrom($_method), $_helper->getDaysUntilEstimatedDeliveryTo($_method)) ?></p>
     </div>
 <?php endif; ?>
 
