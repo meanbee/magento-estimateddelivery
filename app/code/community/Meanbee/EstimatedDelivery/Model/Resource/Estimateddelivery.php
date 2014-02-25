@@ -57,7 +57,7 @@ class Meanbee_EstimatedDelivery_Model_Resource_Estimateddelivery extends Mage_Co
         $adapter->delete($this->_methodTable, $cond);
 
         // Perform inserts
-        if ($insert) {
+        if ($insert && $adapter) {
             $data = array();
             foreach ($insert as $shipping_method) {
                 $data[] = array(
@@ -71,5 +71,38 @@ class Meanbee_EstimatedDelivery_Model_Resource_Estimateddelivery extends Mage_Co
         return $this;
     }
 
+    protected function _getExistingShippingMethods($object) {
+        $read = $this->_getReadAdapter();
+        $methods = $object->getData('shipping_methods');
+        $result = false;
+
+        if ($read) {
+            $select = $read->select()
+                ->from($this->_methodTable)
+                ->where('shipping_method IN (?)', $methods)
+                ->where('estimated_delivery_id <> ?', $object->getId());
+
+            $result = $read->fetchAll($select);
+        }
+
+        return $result;
+    }
+
+    public function handleExistingShippingMethods($object) {
+        if ($existingMethods = $this->_getExistingShippingMethods($object)) {
+            // Collect output into a 1D array
+            $markupList = '<ul>';
+            foreach ($existingMethods as $method) {
+                $markupList .= sprintf('<li>%s - <a href="%s">rule %s</a></li>',
+                    $method['shipping_method'],
+                    Mage::helper('adminhtml')->getUrl('adminhtml/estimateddelivery/edit/', array('id' => $method['estimated_delivery_id'])),
+                    $method['estimated_delivery_id']
+                );
+            }
+            $markupList .= '</ul>';
+            $warningMessage = sprintf('You already have information stored in the database for some of these methods. We are unable to determine which of these will show on the frontend - we recommend only storing one. %s', $markupList);
+            Mage::getSingleton('adminhtml/session')->addWarning($warningMessage);
+        }
+    }
 
 }

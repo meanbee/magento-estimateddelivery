@@ -21,6 +21,11 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Edit extends M
 
             $data = Mage::getModel('meanbee_estimateddelivery/estimateddelivery')
                 ->load($id);
+            $data->addShippingMethods();
+
+
+            // Check to see if the methods already exist in the db, and throw warning if so
+            $data->handleExistingShippingMethods();
 
             Mage::register('estimatedelivery_data', $data);
         }

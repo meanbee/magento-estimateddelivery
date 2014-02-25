@@ -28,4 +28,9 @@ class Meanbee_EstimatedDelivery_Model_Estimateddelivery extends Mage_Core_Model_
         $this->_getResource()->loadByShippingMethod($this, $shippingMethod);
         return $this;
     }
+
+    public function handleExistingShippingMethods() {
+        $this->_getResource()->handleExistingShippingMethods($this);
+        return $this;
+    }
 }
