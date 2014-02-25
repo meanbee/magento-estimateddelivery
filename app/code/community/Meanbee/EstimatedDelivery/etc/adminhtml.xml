@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<config>
+    <acl>
+        <resources>
+            <admin>
+                <children>
+                    <system>
+                        <children>
+                            <config>
+                                <children>
+                                    <meanbee_estimateddelivery translate="title" module="meanbee_estimateddelivery">
+                                        <title>Meanbee: Estimated Delivery</title>
+                                        <sort_order>200</sort_order>
+                                    </meanbee_estimateddelivery>
+                                </children>
+                            </config>
+                        </children>
+                    </system>
+                </children>
+            </admin>
+        </resources>
+    </acl>
+</config>

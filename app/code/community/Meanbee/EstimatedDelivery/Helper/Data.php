@@ -1,6 +1,7 @@
 <?php
 
 class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
+    const XML_PATH_ENABLED = 'meanbee_estimateddelivery/general/enabled';
 
     protected $_estimatedDeliveryData = array();
     protected $_dispatchDate = array();
@@ -8,7 +9,9 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
     protected $_estimatedDeliveryTo = array();
 
     public function canShowEstimatedDelivery($shippingMethod) {
-        return $this->_getEstimatedDeliveryData($shippingMethod)->getId();
+        $enabled = Mage::getStoreConfig(self::XML_PATH_ENABLED);
+        $hasData = $this->_getEstimatedDeliveryData($shippingMethod)->getId();
+        return $enabled && $hasData;
     }
 
     public function getEstimatedDeliveryText($shippingMethod, $date = null) {
