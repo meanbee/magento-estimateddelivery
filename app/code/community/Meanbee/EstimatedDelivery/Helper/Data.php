@@ -7,6 +7,13 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
     protected $_estimatedDeliveryFrom = array();
     protected $_estimatedDeliveryTo = array();
 
+
+    public function getEstimatedDeliveryText($shippingMethod, $date = null) {
+        $from = $this->getEstimatedDeliveryFromString($shippingMethod, $date);
+        $to = $this->getEstimatedDeliveryToString($shippingMethod, $date);
+        return sprintf('Estimated delivery: %s - %s.', $from, $to);
+    }
+
     /**
      * Compute the estimated delivery upper bound. $date default to today's date if not provided.
      *

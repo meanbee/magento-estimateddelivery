@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<layout version="0.1.0">
+    <checkout_onepage_index>
+        <reference name="checkout.onepage.shipping_method.available">
+            <action method="setTemplate">
+                <template>meanbee/estimated_delivery/checkout/onepage/shipping_method/available.phtml</template>
+            </action>
+        </reference>
+    </checkout_onepage_index>
+
+    <checkout_onepage_shippingmethod>
+        <reference name="root">
+            <action method="setTemplate">
+                <template>meanbee/estimated_delivery/checkout/onepage/shipping_method/available.phtml</template>
+            </action>
+        </reference>
+    </checkout_onepage_shippingmethod>
+
+    <checkout_onepage_success>
+        <reference name="head">
+            <action method="addCss"><stylesheet>css/meanbee/estimated_delivery.css</stylesheet></action>
+        </reference>
+        <reference name="content">
+            <block type="meanbee_estimateddelivery/checkout_onepage_success_estimateddelivery"
+                   name="meanbee.estimated_delivery.onepage.success"
+                   template="meanbee/estimated_delivery/checkout/onepage/success/estimated_delivery.phtml"/>
+        </reference>
+    </checkout_onepage_success>
+</layout>

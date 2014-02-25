@@ -1,4 +1,6 @@
 app/code/community/Meanbee/*                                app/code/community/Meanbee/
 app/etc/modules/*                                           app/etc/modules/
 app/design/adminhtml/default/default/layout/meanbee/*       app/design/adminhtml/default/default/layout/meanbee/
-app/design/adminhtml/default/default/template/meanbee/*     app/design/adminhtml/default/default/template/meanbee/
+app/design/frontend/base/default/layout/meanbee/*           app/design/frontend/base/default/layout/meanbee/
+app/design/frontend/base/default/template/meanbee/*         app/design/frontend/base/default/template/meanbee/
+skin/frontend/base/default/css/meanbee/*                    skin/frontend/base/default/css/meanbee/

@@ -63,6 +63,9 @@
                                         (<?php echo $this->__('Incl. Tax'); ?> <?php echo $_incl; ?>)
                                     <?php endif; ?>
                                 </label>
+                                <!-- START MEANBEE ESTIMATED DELIVERY -->
+                                <br/><?php echo Mage::helper('meanbee_estimateddelivery')->getEstimatedDeliveryText($_rate->getCode()); ?>
+                                <!-- END MEANBEE ESTIMATED DELIVERY -->
                             <?php endif ?>
                         </li>
                     <?php endforeach; ?>

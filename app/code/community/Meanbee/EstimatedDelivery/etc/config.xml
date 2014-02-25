@@ -73,6 +73,15 @@
             </sales>
         </menu>
     </adminhtml>
+    <frontend>
+        <layout>
+            <updates>
+                <meanbee_estimateddelivery>
+                    <file>meanbee/estimated_delivery.xml</file>
+                </meanbee_estimateddelivery>
+            </updates>
+        </layout>
+    </frontend>
     <phpunit>
         <suite>
             <modules>
