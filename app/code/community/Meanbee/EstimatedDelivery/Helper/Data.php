@@ -7,8 +7,15 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
     protected $_estimatedDeliveryFrom = array();
     protected $_estimatedDeliveryTo = array();
 
+    public function canShowEstimatedDelivery($shippingMethod) {
+        return $this->_getEstimatedDeliveryData($shippingMethod)->getId();
+    }
 
     public function getEstimatedDeliveryText($shippingMethod, $date = null) {
+        if (!$this->canShowEstimatedDelivery($shippingMethod)) {
+            return false;
+        }
+
         $from = $this->getEstimatedDeliveryFromString($shippingMethod, $date);
         $to = $this->getEstimatedDeliveryToString($shippingMethod, $date);
         return sprintf('Estimated delivery: %s - %s.', $from, $to);
@@ -22,6 +29,10 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
      * @return Zend_Date
      */
     public function getEstimatedDeliveryTo($shippingMethod, $date = null) {
+        if (!$this->canShowEstimatedDelivery($shippingMethod)) {
+            return false;
+        }
+
         $date = $this->_initDate($date);
         $cacheKey = $shippingMethod.$date->toString('ddMMyy');
 
@@ -48,6 +59,10 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
      * @return Zend_Date
      */
     public function getEstimatedDeliveryFrom($shippingMethod, $date = null) {
+        if (!$this->canShowEstimatedDelivery($shippingMethod)) {
+            return false;
+        }
+
         $date = $this->_initDate($date);
         $cacheKey = $shippingMethod.$date->toString('ddMMyy');
 
@@ -72,6 +87,10 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
      * @return Zend_Date
      */
     public function getDispatchDate($shippingMethod, $date = null) {
+        if (!$this->canShowEstimatedDelivery($shippingMethod)) {
+            return false;
+        }
+
         $date = $this->_initDate($date);
         $cacheKey = $shippingMethod.$date->toString('ddMMyy');
 
@@ -100,6 +119,10 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
      * @return string
      */
     public function getEstimatedDeliveryFromString($shippingMethod, $date = null, $format = 'EEEE, dSS MMMM') {
+        if (!$this->canShowEstimatedDelivery($shippingMethod)) {
+            return false;
+        }
+
         $result = $this->getEstimatedDeliveryFrom($shippingMethod, $date);
         return $result->toString($format);
     }
@@ -114,6 +137,10 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
      * @return string
      */
     public function getEstimatedDeliveryToString($shippingMethod, $date = null, $format = 'EEEE, dSS MMMM') {
+        if (!$this->canShowEstimatedDelivery($shippingMethod)) {
+            return false;
+        }
+
         $result = $this->getEstimatedDeliveryTo($shippingMethod, $date);
         return $result->toString($format);
     }
@@ -128,6 +155,10 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
      * @return string
      */
     public function getDispatchDateString($shippingMethod, $date = null, $format = 'EEEE, dSS MMMM') {
+        if (!$this->canShowEstimatedDelivery($shippingMethod)) {
+            return false;
+        }
+
         $result = $this->getDispatchDate($shippingMethod, $date);
         return $result->toString($format);
     }
@@ -140,6 +171,10 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
      * @return int
      */
     public function getDaysUntilEstimatedDeliveryFrom($shippingMethod, $startDate = null) {
+        if (!$this->canShowEstimatedDelivery($shippingMethod)) {
+            return false;
+        }
+
         $endDate = $this->getEstimatedDeliveryFrom($shippingMethod, $startDate);
         return $this->_getDifferenceInDays($endDate, $startDate);
 
@@ -153,6 +188,10 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
      * @return int
      */
     public function getDaysUntilEstimatedDeliveryTo($shippingMethod, $startDate = null) {
+        if (!$this->canShowEstimatedDelivery($shippingMethod)) {
+            return false;
+        }
+
         $endDate = $this->getEstimatedDeliveryTo($shippingMethod, $startDate);
         return $this->_getDifferenceInDays($endDate, $startDate);
     }
@@ -165,6 +204,10 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
      * @return int
      */
     public function getDaysUntilDispatchDate($shippingMethod, $startDate = null) {
+        if (!$this->canShowEstimatedDelivery($shippingMethod)) {
+            return false;
+        }
+
         $endDate = $this->getDispatchDate($shippingMethod, $startDate);
         return $this->_getDifferenceInDays($startDate, $endDate);
     }
