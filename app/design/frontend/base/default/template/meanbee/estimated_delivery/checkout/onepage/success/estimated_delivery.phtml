@@ -4,7 +4,7 @@
 <?php $_helper = Mage::helper('meanbee_estimateddelivery'); ?>
 <?php $_method = $_order->getShippingMethod(); ?>
 
-<?php if ($_order): ?>
+<?php if ($_order && $_helper->canShowEstimatedDelivery($_method)): ?>
     <div class="estimated_delivery">
         <h2 class="sub-title"><?php echo $this->__('Estimated Delivery') ?></h2>
         <p><?php echo $this->__('Your order should be dispatched on or before %s.', $_helper->getDispatchDateString($_method)) ?></p>
