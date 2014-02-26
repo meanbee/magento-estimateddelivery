@@ -5,10 +5,17 @@
 <?php $_method = $_order->getShippingMethod(); ?>
 
 <?php if ($_order && $_helper->canShowEstimatedDelivery($_method)): ?>
+    <?php $_from = $_helper->getDaysUntilEstimatedDeliveryFrom($_method); ?>
+    <?php $_to = $_helper->getDaysUntilEstimatedDeliveryTo($_method); ?>
     <div class="estimated_delivery">
         <h2 class="sub-title"><?php echo $this->__('Estimated Delivery') ?></h2>
         <p><?php echo $this->__('Your order should be dispatched on or before %s.', $_helper->getDispatchDateString($_method)) ?></p>
-        <p><?php echo $this->__('You should then receive your order in %s - %s days.', $_helper->getDaysUntilEstimatedDeliveryFrom($_method), $_helper->getDaysUntilEstimatedDeliveryTo($_method)) ?></p>
+        <?php $_dayString = ($_to > 1) ? "days": "day"; ?>
+        <?php if ($_from == $_to): ?>
+            <p><?php echo $this->__('You should then receive your order in %s %s.', $_from, $_dayString) ?></p>
+        <?php else: ?>
+            <p><?php echo $this->__('You should then receive your order in %s - %s %s.', $_from, $_to, $_dayString) ?></p>
+        <?php endif ?>
     </div>
 <?php endif; ?>
 

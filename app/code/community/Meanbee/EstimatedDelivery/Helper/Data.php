@@ -21,7 +21,13 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
 
         $from = $this->getEstimatedDeliveryFromString($shippingMethod, $date);
         $to = $this->getEstimatedDeliveryToString($shippingMethod, $date);
-        return sprintf('Estimated delivery: %s - %s.', $from, $to);
+        if ($from == $to) {
+            $result = sprintf('Estimated delivery: %s.', $from);
+        } else {
+            $result = sprintf('Estimated delivery: %s - %s.', $from, $to);
+        }
+
+        return $result;
     }
 
     /**
