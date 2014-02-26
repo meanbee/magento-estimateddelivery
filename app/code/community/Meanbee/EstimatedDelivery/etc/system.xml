@@ -2,7 +2,7 @@
 <config>
     <sections>
         <meanbee_estimateddelivery translate="label" module="meanbee_estimateddelivery">
-            <label>Meanbee: Estimated Delivery</label>
+            <label>Meanbee: ETA</label>
             <tab>sales</tab>
             <frontend_type>text</frontend_type>
             <sort_order>1000</sort_order>
