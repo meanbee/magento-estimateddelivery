@@ -229,7 +229,7 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
      */
     protected function _initDate($date) {
         if ($date === null) {
-            $date = Mage::app()->getLocale()->storeDate();
+            $date =  Mage::app()->getLocale()->storeDate(Mage::app()->getStore(), null, true);
         }
         return $date;
     }
