@@ -1,5 +1,5 @@
 <?php
-class Meanbee_EstimatedDelivery_Model_Resource_Estimateddelivery_Collection extends Mage_Core_Model_Resource_Db_Collection_Abstract {
+class Meanbee_EstimatedDelivery_Model_Resource_Estimateddelivery_Collection extends Mage_Core_Model_Mysql4_Collection_Abstract {
 
     protected $_serializedFields = array('dispatchable_days', 'deliverable_days');
 
