@@ -12,44 +12,34 @@ class Meanbee_EstimatedDelivery_Test_Helper_Data extends EcomDev_PHPUnit_Test_Ca
     }
 
     /**
+     * @dataProvider dataProvider
+     * @loadExpectation
      * @loadFixture estimatedDelivery.yaml
      */
-    public function testGetDispatchDate() {
-        // 'test_shipping1' has a dispatch preparation of 1, ensure that this increments the day by one when time is
-        // before the last dispatch date at 12:00
-        $date = new Zend_Date('3rd March 2014 14:00');
-        $expectedDate = new Zend_Date('4th March 2014 14:00');
-        $shippingMethod = 'test_shipping1';
-        $estimatedDeliveryInfo = Mage::getModel('meanbee_estimateddelivery/estimateddelivery')->loadByShippingMethod($shippingMethod);
-        $this->assertEquals(1, $estimatedDeliveryInfo->getDispatchPreparation(), sprintf("This test is predicated on '%s' having a dispatch preparation of %s. Got value %s", $shippingMethod, 1, $estimatedDeliveryInfo->getDispatchPreparation()));
-        $result = $this->_helper->getDispatchDate($shippingMethod, $date);
-        $this->assertEquals($expectedDate, $result, sprintf("Did not get expected dispatch date for shipping method '%s'. Expected value was %s and we got %s", $shippingMethod, $expectedDate, $result));
-
-        // 'test_shipping2' has a dispatch preparation of 0. Ensure the dispatch date is the same as the intial date.
-        $date = new Zend_Date('3rd March 2014 14:00');
-        $shippingMethod = 'test_shipping2';
-        $estimatedDeliveryInfo = Mage::getModel('meanbee_estimateddelivery/estimateddelivery')->loadByShippingMethod($shippingMethod);
-        $this->assertEquals(0, $estimatedDeliveryInfo->getDispatchPreparation(), sprintf("This test is predicated on '%s' having a dispatch preparation of %s. Got value %s", $shippingMethod, 0, $estimatedDeliveryInfo->getDispatchPreparation()));
-        $result = $this->_helper->getDispatchDate($shippingMethod, $date);
-        $this->assertEquals($date, $result, sprintf("Did not get expected dispatch date for shipping method '%s'. Expected value was %s and we got %s", $shippingMethod, $date, $result));
-        
-        // Again, using 'test_shipping2' I want to ensure that the latest delivery (12:00) is honoured
-        $date = new Zend_Date('3rd March 2014 16:00');
-        $expectedDate = new Zend_Date('4th March 2014 16:00');
-        $shippingMethod = 'test_shipping2';
-        $estimatedDeliveryInfo = Mage::getModel('meanbee_estimateddelivery/estimateddelivery')->loadByShippingMethod($shippingMethod);
-        $this->assertEquals("15:00:00", $estimatedDeliveryInfo->getLastDispatchTime(), sprintf("This test is predicated on '%s' having a dispatch preparation of %s. Got value %s", $shippingMethod, "15:00:00", $estimatedDeliveryInfo->getLastDispatchTime()));
-        $result = $this->_helper->getDispatchDate($shippingMethod, $date);
-        $this->assertEquals($expectedDate, $result, sprintf("Did not get expected dispatch date for shipping method '%s'. Expected value was %s and we got %s", $shippingMethod, $expectedDate, $result));
+    public function testGetDispatchDate($testId, $startDate, $shippingMethod) {
+        $expectation = $this->expected($testId);
 
         // Test to see that these two factor stack using 'test_shipping1'
-        $date = new Zend_Date('3rd March 2014 16:00');
-        $expectedDate = new Zend_Date('5th March 2014 16:00');
-        $shippingMethod = 'test_shipping1';
+        $date = new Zend_Date($startDate);
+        $expectedDate = new Zend_Date($expectation->getResult());
+        $latestDispatchTimePredicate = $expectation->getLastDispatchTime();
+        $dispatchPreparationPredicate = $expectation->getDispatchPreparation();
+        $dispatchableDaysPredicate = $expectation->getDispatchableDays();
+
         $estimatedDeliveryInfo = Mage::getModel('meanbee_estimateddelivery/estimateddelivery')->loadByShippingMethod($shippingMethod);
-        $this->assertEquals("15:00:00", $estimatedDeliveryInfo->getLastDispatchTime(), sprintf("This test is predicated on '%s' having a dispatch preparation of %s. Got value %s", $shippingMethod, "15:00:00", $estimatedDeliveryInfo->getLastDispatchTime()));
-        $this->assertEquals(1, $estimatedDeliveryInfo->getDispatchPreparation(), sprintf("This test is predicated on '%s' having a dispatch preparation of %s. Got value %s", $shippingMethod, 1, $estimatedDeliveryInfo->getDispatchPreparation()));
+
+        $this->assertEquals($latestDispatchTimePredicate, $estimatedDeliveryInfo->getLastDispatchTime(), sprintf("This test is predicated on '%s' having a latest dispatch time of %s. Got value %s", $shippingMethod, $latestDispatchTimePredicate, $estimatedDeliveryInfo->getLastDispatchTime()));
+        $this->assertEquals($dispatchPreparationPredicate, $estimatedDeliveryInfo->getDispatchPreparation(), sprintf("This test is predicated on '%s' having a dispatch preparation of %s. Got value %s", $shippingMethod, $dispatchPreparationPredicate, $estimatedDeliveryInfo->getDispatchPreparation()));
+        $this->assertEquals($dispatchableDaysPredicate, $estimatedDeliveryInfo->getDispatchableDays(), sprintf("This test is predicated on '%s' having dispatchable days %s. Got value %s", $shippingMethod, print_r($dispatchableDaysPredicate, true), print_r($estimatedDeliveryInfo->getDispatchableDays(), true)));
+
         $result = $this->_helper->getDispatchDate($shippingMethod, $date);
         $this->assertEquals($expectedDate, $result, sprintf("Did not get expected dispatch date for shipping method '%s'. Expected value was %s and we got %s", $shippingMethod, $expectedDate, $result));
+    }
+
+    /**
+     * @loadFixture estimatedDelivery.yaml
+     */
+    public function testGetEstimatedDeliveryToAndFrom() {
+
     }
 }
