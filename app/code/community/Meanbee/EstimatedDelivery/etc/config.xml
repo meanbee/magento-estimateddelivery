@@ -62,15 +62,15 @@
             </updates>
         </layout>
         <menu>
-            <sales>
+            <catalog>
                 <children>
                     <meanbee_estimateddelivery translate="title">
                         <title>Manage Estimated Delivery Dates</title>
                         <action>adminhtml/estimateddelivery/index</action>
-                        <sort_order>200</sort_order>
+                        <sort_order>101</sort_order>
                     </meanbee_estimateddelivery>
                 </children>
-            </sales>
+            </catalog>
         </menu>
     </adminhtml>
     <frontend>
