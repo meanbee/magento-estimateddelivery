@@ -1,0 +1,65 @@
+# Test simple case
+test1:
+  from: 2
+  to: 4
+  dispatch_preparation: 0
+  last_dispatch_time: 15:00:00
+  dispatchable_days: [ 0, 1, 2, 3, 4, 5, 6 ]
+  from_date: 5th March 2014 14:00
+  to_date: 7th March 2014 14:00
+  deliverable_days: [ 0, 1, 2, 3, 4, 5, 6 ]
+
+# Ensure to and from respect dispatch preparation
+test2:
+  from: 2
+  to: 4
+  dispatch_preparation: 1
+  last_dispatch_time: 15:00:00
+  dispatchable_days: [ 0, 1, 2, 3, 4, 5, 6 ]
+  from_date: 6th March 2014 14:00
+  to_date: 8th March 2014 14:00
+  deliverable_days: [ 0, 1, 2, 3, 4, 5, 6 ]
+
+# Ensure to and from respect last dispatch time
+test3:
+  from: 2
+  to: 4
+  dispatch_preparation: 0
+  last_dispatch_time: 15:00:00
+  dispatchable_days: [ 0, 1, 2, 3, 4, 5, 6 ]
+  from_date: 6th March 2014 16:00
+  to_date: 8th March 2014 16:00
+  deliverable_days: [ 0, 1, 2, 3, 4, 5, 6 ]
+
+# Ensure respects both last dispatch and dispatch prep at the same time
+test4:
+  from: 2
+  to: 4
+  dispatch_preparation: 1
+  last_dispatch_time: 15:00:00
+  dispatchable_days: [ 0, 1, 2, 3, 4, 5, 6 ]
+  from_date: 7th March 2014 16:00
+  to_date: 9th March 2014 16:00
+  deliverable_days: [ 0, 1, 2, 3, 4, 5, 6 ]
+
+# if only dispatch on saturday 8th, ensure to and from are correct
+test5:
+  from: 2
+  to: 4
+  dispatch_preparation: 1
+  last_dispatch_time: 15:00:00
+  dispatchable_days: [ 6 ]
+  from_date: 10th March 2014 16:00
+  to_date: 12th March 2014 16:00
+  deliverable_days: [ 0, 1, 2, 3, 4, 5, 6 ]
+
+# if only delivers saturday, ensure to and from are both saturday 8th
+test6:
+  from: 2
+  to: 2
+  dispatch_preparation: 1
+  last_dispatch_time: 15:00:00
+  dispatchable_days: [ 0, 1, 2, 3, 4, 5, 6 ]
+  from_date: 8th March 2014 16:00
+  to_date: 8th March 2014 16:00
+  deliverable_days: [ 6 ]
