@@ -1,6 +1,6 @@
 <_>
-   <form_key>d0pbYnk40iDZhzbu</form_key>
-   <name>Meanbee_ETA</name>
+   <form_key>fLlpZXo7KQ7ouI0L</form_key>
+   <name>Meanbee_EstimatedDelivery</name>
    <channel>community</channel>
    <version_ids>
       <version_ids>2</version_ids>
@@ -40,7 +40,7 @@
             <max/>
          </max>
          <files>
-            <files>  </files>
+            <files>         </files>
          </files>
       </package>
       <extension>
