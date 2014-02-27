@@ -43,7 +43,7 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
         }
 
         $date = $this->_initDate($date);
-        $cacheKey = $shippingMethod.$date->toString('ddMMyy');
+        $cacheKey = $shippingMethod.$date->toString('ddMMyyHHmm');
 
         if (isset($this->_estimatedDeliveryTo[$cacheKey]) && $cached = $this->_estimatedDeliveryTo[$cacheKey]) {
             return $cached;
@@ -73,7 +73,7 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
         }
 
         $date = $this->_initDate($date);
-        $cacheKey = $shippingMethod.$date->toString('ddMMyy');
+        $cacheKey = $shippingMethod.$date->toString('ddMMyyHHmm');
 
         if (isset($this->_estimatedDeliveryFrom[$cacheKey]) && $cached = $this->_estimatedDeliveryFrom[$cacheKey]) {
             return $cached;
@@ -101,7 +101,7 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
         }
 
         $date = $this->_initDate($date);
-        $cacheKey = $shippingMethod.$date->toString('ddMMyy');
+        $cacheKey = $shippingMethod.$date->toString('ddMMyyHHmm');
 
         if (isset($this->_dispatchDate[$cacheKey]) && $cached = $this->_dispatchDate[$cacheKey]) {
             return $cached;
