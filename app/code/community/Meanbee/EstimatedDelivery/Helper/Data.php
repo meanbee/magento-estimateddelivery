@@ -9,7 +9,7 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
     protected $_estimatedDeliveryTo = array();
 
     public function canShowEstimatedDelivery($shippingMethod) {
-        $enabled = Mage::getStoreConfig(self::XML_PATH_ENABLED);
+        $enabled = $this->getEnabled();
         $hasData = $this->_getEstimatedDeliveryData($shippingMethod)->getId();
         return $enabled && $hasData;
     }
@@ -220,6 +220,12 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
         $endDate = $this->getDispatchDate($shippingMethod, $startDate);
         return $this->_getDifferenceInDays($startDate, $endDate);
     }
+
+
+    public function getEnabled() {
+        return Mage::getStoreConfigFlag(self::XML_PATH_ENABLED);
+    }
+
 
     /**
      * Helper method used to initialise $date to today if set to null

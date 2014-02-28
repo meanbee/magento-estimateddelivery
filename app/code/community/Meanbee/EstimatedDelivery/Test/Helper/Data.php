@@ -70,4 +70,52 @@ class Meanbee_EstimatedDelivery_Test_Helper_Data extends EcomDev_PHPUnit_Test_Ca
         $this->assertEquals($expectedFromDate, $fromDate, sprintf("Did not get expected from date for shipping method '%s'. Expected value was %s and we got %s", $shippingMethod, $expectedFromDate, $fromDate));
         $this->assertEquals($expectedToDate, $toDate, sprintf("Did not get expected to date for shipping method '%s'. Expected value was %s and we got %s", $shippingMethod,  $expectedToDate, $toDate));
     }
+
+    /**
+     * @loadFixture estimatedDelivery.yaml
+     */
+    public function testNoEstimatedDeliveryData() {
+        $shippingMethod = 'methoddoesnt_exist';
+        $date = new Zend_Date('3rd March 2014 14:00');
+        $model = Mage::getModel('meanbee_estimateddelivery/estimateddelivery')->loadByShippingMethod($shippingMethod);
+
+        $this->assertEquals(false, $model->getId(), sprintf("Test is predicated on '%s' not having any estimated delivery information. Found %s", $shippingMethod, print_r($model->debug(), true)));
+
+        $dispatchDate = $this->_helper->getDispatchDate($shippingMethod, $date);
+        $fromDate = $this->_helper->getEstimatedDeliveryFrom($shippingMethod, $date);
+        $toDate = $this->_helper->getEstimatedDeliveryTo($shippingMethod, $date);
+        $daysUntilDispatch = $this->_helper->getDaysUntilDispatchDate($shippingMethod, $date);
+        $daysUntilFrom = $this->_helper->getDaysUntilEstimatedDeliveryFrom($shippingMethod, $date);
+        $daysUntilTo = $this->_helper->getDaysUntilEstimatedDeliveryTo($shippingMethod, $date);
+
+        // Ensure they are all false
+        $this->assertFalse($dispatchDate);
+        $this->assertFalse($fromDate);
+        $this->assertFalse($toDate);
+        $this->assertFalse($daysUntilDispatch);
+        $this->assertFalse($daysUntilFrom);
+        $this->assertFalse($daysUntilTo);
+    }
+
+    /**
+     * @loadFixture estimatedDelivery.yaml
+     */
+    public function testCanShowEstimatedDelivery() {
+        $shippingMethodWhichExists = "test_shipping1";
+        $shippingMethodWhichDoesntExist = "methoddoesnt_exist";
+
+        $this->assertTrue(Mage::getStoreConfigFlag("meanbee_estimateddelivery/general/enabled"));
+        $this->assertTrue($this->_helper->canShowEstimatedDelivery($shippingMethodWhichExists));
+        $this->assertFalse($this->_helper->canShowEstimatedDelivery($shippingMethodWhichDoesntExist));
+
+        // Now disable the module
+        $helperMock = $this->getHelperMock('meanbee_estimateddelivery/data', array('getEnabled'));
+        $helperMock->expects($this->any())
+            ->method('getEnabled')
+            ->will($this->returnValue(false));
+
+        $this->assertFalse($helperMock->getEnabled());
+        $this->assertFalse($helperMock->canShowEstimatedDelivery($shippingMethodWhichExists));
+        $this->assertFalse($helperMock->canShowEstimatedDelivery($shippingMethodWhichDoesntExist));
+    }
 }
