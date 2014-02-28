@@ -1,0 +1,33 @@
+# Test is dispatch prep is 1 then dispatch next day
+test1:
+  result: 1
+  dispatch_preparation: 1
+  last_dispatch_time: 15:00:00
+  dispatchable_days: [ 0, 1, 2, 3, 4, 5, 6 ]
+
+# Test if dispatch prep is 0 then dispatch same day
+test2:
+  result: 0
+  dispatch_preparation: 0
+  last_dispatch_time: 15:00:00
+  dispatchable_days: [ 0, 1, 2, 3, 4, 5, 6 ]
+
+# Test if latest dispatch date is honoured
+test3:
+  result: 1
+  dispatch_preparation: 0
+  last_dispatch_time: 15:00:00
+  dispatchable_days: [ 0, 1, 2, 3, 4, 5, 6 ]
+
+# Test if latest dispatch date is honoured and dispatch prep 1 works
+test4:
+  result: 2
+  dispatch_preparation: 1
+  last_dispatch_time: 15:00:00
+  dispatchable_days: [ 0, 1, 2, 3, 4, 5, 6 ]
+# Test that dispatch date will be saturday, if that's the only dispatchable day
+test5:
+  result: 5
+  dispatch_preparation: 1
+  last_dispatch_time: 15:00:00
+  dispatchable_days: [ 6 ]

@@ -218,7 +218,7 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
         }
 
         $endDate = $this->getDispatchDate($shippingMethod, $startDate);
-        return $this->_getDifferenceInDays($startDate, $endDate);
+        return $this->_getDifferenceInDays($endDate, $startDate);
     }
 
 

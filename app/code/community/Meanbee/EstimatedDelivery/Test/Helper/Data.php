@@ -117,5 +117,31 @@ class Meanbee_EstimatedDelivery_Test_Helper_Data extends EcomDev_PHPUnit_Test_Ca
         $this->assertFalse($helperMock->getEnabled());
         $this->assertFalse($helperMock->canShowEstimatedDelivery($shippingMethodWhichExists));
         $this->assertFalse($helperMock->canShowEstimatedDelivery($shippingMethodWhichDoesntExist));
+
+    }
+
+    /**
+     * @dataProvider dataProvider
+     * @loadExpectation
+     * @loadFixture estimatedDelivery.yaml
+     */
+    public function testGetDaysUntilDispatchDate($testId, $startDate, $shippingMethod) {
+        $expectation = $this->expected($testId);
+
+        $date = new Zend_Date($startDate);
+        $expectedDays = $expectation->getResult();
+        $latestDispatchTimePredicate = $expectation->getLastDispatchTime();
+        $dispatchPreparationPredicate = $expectation->getDispatchPreparation();
+        $dispatchableDaysPredicate = $expectation->getDispatchableDays();
+
+        $estimatedDeliveryInfo = Mage::getModel('meanbee_estimateddelivery/estimateddelivery')->loadByShippingMethod($shippingMethod);
+
+        // assert predicates
+        $this->assertEquals($latestDispatchTimePredicate, $estimatedDeliveryInfo->getLastDispatchTime(), sprintf("This test is predicated on '%s' having a latest dispatch time of %s. Got value %s", $shippingMethod, $latestDispatchTimePredicate, $estimatedDeliveryInfo->getLastDispatchTime()));
+        $this->assertEquals($dispatchPreparationPredicate, $estimatedDeliveryInfo->getDispatchPreparation(), sprintf("This test is predicated on '%s' having a dispatch preparation of %s. Got value %s", $shippingMethod, $dispatchPreparationPredicate, $estimatedDeliveryInfo->getDispatchPreparation()));
+        $this->assertEquals($dispatchableDaysPredicate, $estimatedDeliveryInfo->getDispatchableDays(), sprintf("This test is predicated on '%s' having dispatchable days %s. Got value %s", $shippingMethod, print_r($dispatchableDaysPredicate, true), print_r($estimatedDeliveryInfo->getDispatchableDays(), true)));
+
+        $result = $this->_helper->getDaysUntilDispatchDate($shippingMethod, $date);
+        $this->assertEquals($expectedDays, $result, sprintf("Did not get expected dispatch date for shipping method '%s'. Expected value was %s and we got %s", $shippingMethod, $expectedDays, $result));
     }
 }
