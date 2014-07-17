@@ -83,6 +83,12 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Edit_Form exte
 
         try {
             $options = Mage::getModel('adminhtml/system_config_source_shipping_allmethods')->toOptionArray();
+
+            // Patch for matrix rates not supporting getAllowedMethods properly
+            if (Mage::helper('core')->isModuleEnabled('Webshopapps_Matrixrate')) {
+                $options = array_merge($options, $this->_getMatrixRatesMethods());
+            }
+
         } catch (Exception $e) {
             return array(
                 array('value'=>0,'label'=>'Unable to retreive shipping methods.'),
@@ -100,5 +106,24 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Edit_Form exte
             }
         }
         return $values;
+    }
+
+    protected function _getMatrixRatesMethods() {
+        if (!class_exists(Webshopapps_Matrixrate_Model_Mysql4_Carrier_Matrixrate_Collection)) {
+            return array();
+        }
+
+        $collection = Mage::getResourceModel('matrixrate_shipping/carrier_matrixrate_collection')->getData();
+        $options = array('matrixrate' => array('value' => array()));
+
+        foreach ($collection as $row) {
+            $options['matrixrate']['value'][] =
+                    array('value' => 'matrixrate_matrixrate_' . $row['pk'],
+                            'label' => '[matrixrate] MatrixRate ' . $row['pk']);
+
+        }
+
+        return $options;
+
     }
 }
