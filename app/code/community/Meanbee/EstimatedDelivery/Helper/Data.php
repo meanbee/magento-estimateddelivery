@@ -2,6 +2,8 @@
 
 class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
     const XML_PATH_ENABLED = 'meanbee_estimateddelivery/general/enabled';
+    const DISPATCH = 1;
+    const DELIVERY = 2;
 
     protected $_estimatedDeliveryData = array();
     protected $_dispatchDate = array();
@@ -111,7 +113,7 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
 
         $date = $this->_handleLatestDispatch($estimatedDelivery, $date);
         $date = $this->_handleDispatchPreparation($estimatedDelivery, $date);
-        $date = $this->_computeClosestValidDate($estimatedDelivery->getDispatchableDays(), $date);
+        $date = $this->_computeClosestValidDate($estimatedDelivery, $date, self::DISPATCH);
 
         $this->_dispatchDate[$cacheKey] = $date;
 
@@ -278,8 +280,15 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
         $localDate = clone $date;
         $estimatedDelivery = $this->_getEstimatedDeliveryData($shippingMethod);
 
-        $localDate->addDay($offset);
-        $localDate = $this->_computeClosestValidDate($estimatedDelivery->getDeliverableDays(), $localDate);
+        $region = $estimatedDelivery->getDeliveryTimeHolidays();
+        $holidayHelper = Mage::helper('meanbee_estimateddelivery/bankHoliday');
+        for ($i = $offset; $i > 0; $localDate->addDay(1)) {
+            if ($region === null || !$holidayHelper->isHoliday($localDate, $region)) {
+                $i--;
+            }
+        }
+
+        $localDate = $this->_computeClosestValidDate($estimatedDelivery, $localDate, self::DELIVERY);
 
         return $localDate;
     }
@@ -291,21 +300,32 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
      * For example, imagine "freeshipping" can be dispatched on Monday to Friday, and an order is placed on Sunday.
      * This method would return the date of the Monday following the Sunday which the order was placed.
      *
-     * @param array $validDays
+     * @param EstimatedDelivery_Model_Estimateddelivery $estimatedDelivery
      * @param Zend_Date $date
+     * @param int $phase
      * @return Zend_Date
      */
-    protected function _computeClosestValidDate($validDays, $date) {
+    protected function _computeClosestValidDate($estimatedDelivery, $date, $phase) {
         $localDate = clone $date;
-
+        $region = null;
+        switch ($phase) {
+            case self::DISPATCH:
+                $validDays = $estimatedDelivery->getDispatchableDays();
+                $region = $estimatedDelivery->getDispatchDayHolidays();
+                break;
+            case self::DELIVERY:
+                $validDays = $estimatedDelivery->getDeliverableDays();
+                $region = $estimatedDelivery->getDeliveryDayHolidays();
+                break;
+        }
+        $holidayHelper = Mage::helper('meanbee_estimateddelivery/bankHoliday');
         while(true) {
             $day = $localDate->toString(Zend_Date::WEEKDAY_DIGIT);
-            if (in_array($day, $validDays)) {
+            if (in_array($day, $validDays) && ($region === null || !$holidayHelper->isHoliday($localDate, $region))) {
                 break;
             }
             $localDate->addDay(1);
         }
-
         return $localDate;
     }
 
@@ -349,8 +369,14 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
         $localDate = clone $date;
         $dispatchPreparation = $estimatedDelivery->getDispatchPreparation();
 
-        if ($dispatchPreparation) {
-            $localDate->addDay($dispatchPreparation);
+        if ($region = $estimatedDelivery->getDispatchTimeHolidays()) {
+            $holidayHelper = Mage::helper('meanbee_estimateddelivery/bankHoliday');
+            $dispatchPreparation = $estimatedDelivery->getDispatchPreparation();
+            for ($i = $dispatchPreparation; $i > 0; $localDate->addDay(1)) {
+                if (!$holidayHelper->isHoliday($localDate, $region)) {
+                    $i--;
+                }
+            }
         }
 
         return $localDate;
