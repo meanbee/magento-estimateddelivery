@@ -24,9 +24,9 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
         $from = $this->getEstimatedDeliveryFromString($shippingMethod, $date);
         $to = $this->getEstimatedDeliveryToString($shippingMethod, $date);
         if ($from == $to) {
-            $result = sprintf('Estimated delivery: %s.', $from);
+            $result = sprintf(($this->getSelectSlotResolution($shippingMethod) ? 'Earliest' : 'Estimated') . ' delivery: %s.', $from);
         } else {
-            $result = sprintf('Estimated delivery: %s - %s.', $from, $to);
+            $result = sprintf(($this->getSelectSlotResolution($shippingMethod) ? 'Earliest' : 'Estimated') . ' delivery: %s - %s.', $from, $to);
         }
 
         return $result;
@@ -221,6 +221,23 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
 
         $endDate = $this->getDispatchDate($shippingMethod, $startDate);
         return $this->_getDifferenceInDays($endDate, $startDate);
+    }
+
+
+    public function getSelectSlotResolution($shippingMethod) {
+        if (!$this->canShowEstimatedDelivery($shippingMethod)) {
+            return false;
+        }
+
+        return $this->_getEstimatedDeliveryData($shippingMethod)->getSelectSlotResolution();
+    }
+
+    public function getDeliverableDays($shippingMethod) {
+        if (!$this->canShowEstimatedDelivery($shippingMethod)) {
+            return false;
+        }
+
+        return $this->_getEstimatedDeliveryData($shippingMethod)->getDeliverableDays();
     }
 
 

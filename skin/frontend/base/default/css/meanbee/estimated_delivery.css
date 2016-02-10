@@ -3,3 +3,142 @@
     padding: 12px 15px;
     margin-top: 18px;
 }
+
+.meanbee_estimateddelivery-selectslot .selector {
+    border: solid 1px #ccc;
+    margin-bottom: 1rem;
+    min-width: 250px;
+    width: 20%;
+}
+.meanbee_estimateddelivery-selectslot .selector-header {
+    display: flex;
+    height: 2rem;
+}
+.meanbee_estimateddelivery-selectslot button {
+    -webkit-appearance: none;
+            appearance: none;
+    background: transparent;
+    border: none;
+    min-width: 2rem;
+}
+.meanbee_estimateddelivery-selectslot .selector-previous-month,
+.meanbee_estimateddelivery-selectslot .selector-previous-year {
+    order: 1;
+    position: relative;
+}
+.meanbee_estimateddelivery-selectslot button::before {
+    align-items: center;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+.meanbee_estimateddelivery-selectslot .selector-previous-month::before {
+    content: '▶︎';
+    transform: rotate(180deg);
+}
+.meanbee_estimateddelivery-selectslot .selector-previous-year::before {
+    content: '▶︎▶︎';
+    letter-spacing: -.3rem;
+    transform: rotate(180deg);
+}
+.meanbee_estimateddelivery-selectslot .selector-header-text {
+    align-items: center;
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    order: 2;
+}
+.meanbee_estimateddelivery-selectslot .selector-next-month,
+.meanbee_estimateddelivery-selectslot .selector-next-year {
+    order: 3;
+    position: relative;
+}
+.meanbee_estimateddelivery-selectslot .selector-next-month::before {
+    content: '▶︎';
+}
+.meanbee_estimateddelivery-selectslot .selector-next-year::before {
+    content: '▶︎▶︎';
+    letter-spacing: -.3rem;
+}
+.meanbee_estimateddelivery-selectslot [type="radio"] {
+    border:0;
+    clip: rect(1px, 1px, 1px, 1px);
+    height: 1px;
+    overflow: hidden;
+    padding:0;
+    position: absolute;
+    width: 1px;
+}
+.meanbee_estimateddelivery-selectslot .selector-months {
+    display: flex;
+    flex-flow: row wrap;
+}
+.meanbee_estimateddelivery-selectslot label {
+    align-items: center;
+    background: #f4f4f4;
+    border: solid 1px #ccc;
+    cursor: pointer;
+    display: flex;
+    height: 2rem;
+    font-weight: normal;
+    justify-content: center;
+}
+.meanbee_estimateddelivery-selectslot label:hover {
+    background: #ececec;
+}
+.meanbee_estimateddelivery-selectslot [type="radio"]:focus + label {
+    background: #ececec;
+    border-color: #3399cc;
+}
+.meanbee_estimateddelivery-selectslot :checked + label {
+    border-color: #3399cc;
+    border-width: 2px;
+    font-weight: bold;
+}
+.meanbee_estimateddelivery-selectslot :disabled + label {
+    background: transparent;
+    border: none;
+    cursor: inherit;
+}
+.meanbee_estimateddelivery-selectslot .day.disabled {
+    align-self: stretch;
+    font-weight: normal;
+    background-color: #FFF;
+}
+.meanbee_estimateddelivery-selectslot .selector-months label{
+    flex: 1 0 25%;
+}
+.meanbee_estimateddelivery-selectslot .selector-weeks .selector-table-header,
+.meanbee_estimateddelivery-selectslot .selector-days .selector-table-header,
+.meanbee_estimateddelivery-selectslot .selector-weeks label,
+.meanbee_estimateddelivery-selectslot .selector-days .week {
+    display: flex;
+}
+.meanbee_estimateddelivery-selectslot .selector-weeks label:first-of-type,
+.meanbee_estimateddelivery-selectslot .selector-days .week:nth-of-type(2) {
+    justify-content: flex-end;
+}
+.meanbee_estimateddelivery-selectslot .selector-weeks label:last-of-type,
+.meanbee_estimateddelivery-selectslot .selector-days .week:last-of-type {
+    justify-content: flex-start;
+}
+.meanbee_estimateddelivery-selectslot .selector-weeks .day,
+.meanbee_estimateddelivery-selectslot .selector-days .day {
+    align-items: center;
+    display: flex;
+    flex: 0 0 14.285714%;
+    justify-content: center;
+}
+.meanbee_estimateddelivery-selectslot .validation-advice {
+    display: none;
+}
+.meanbee_estimateddelivery-selectslot label:first-of-type .validation-advice:first-of-type,
+.meanbee_estimateddelivery-selectslot .week:nth-of-type(2) .validation-advice:first-of-type {
+    display: block;
+    position: absolute;
+    margin-left: 1rem;
+}

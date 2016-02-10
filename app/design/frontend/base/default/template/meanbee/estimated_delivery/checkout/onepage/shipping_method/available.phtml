@@ -44,7 +44,15 @@
                                 <?php if ($_sole) : ?>
                                     <span class="no-display"><input name="shipping_method" type="radio" value="<?php echo $_rate->getCode() ?>" id="s_method_<?php echo $_rate->getCode() ?>" checked="checked" /></span>
                                 <?php else: ?>
-                                <input name="shipping_method" type="radio" value="<?php echo $_rate->getCode() ?>" id="s_method_<?php echo $_rate->getCode() ?>"<?php if($_rate->getCode()===$this->getAddressShippingMethod()) echo ' checked="checked"' ?> class="radio"/>
+                                <input name="shipping_method"
+                                       type="radio"
+                                       value="<?php echo $_rate->getCode() ?>"
+                                       id="s_method_<?php echo $_rate->getCode() ?>"
+                                       <?php if($_rate->getCode()===$this->getAddressShippingMethod()) echo ' checked="checked"' ?>
+                                       class="radio"
+                                       data-resolution="<?php echo Mage::helper('meanbee_estimateddelivery')->getSelectSlotResolution($_rate->getCode()); ?>"
+                                       data-first-valid-date="<?php echo (new DateTime(Mage::helper('meanbee_estimateddelivery')->getEstimatedDeliveryFrom($_rate->getCode())))->format('Y-m-d'); ?>"
+                                       data-deliverable-days="<?php echo implode(',', Mage::helper('meanbee_estimateddelivery')->getDeliverableDays($_rate->getCode())); ?>"/>
 
                                 <?php if ($_rate->getCode() === $this->getAddressShippingMethod()): ?>
                                     <script type="text/javascript">
@@ -73,6 +81,21 @@
             </dd>
         <?php endforeach; ?>
     </dl>
+    <!-- START MEANBEE ESTIMATED DELIVERY -->
+    <div class="meanbee_estimateddelivery-selectslot" hidden>
+        <h3><?php echo Mage::helper('meanbee_estimateddelivery')->__('Select Slot'); ?></h3>
+        <div class="selector"></div>
+    </div>
+    <script>
+        if (!window.Meanbee) window.Meanbee = {};
+        if (!window.Meanbee.EstimatedDelivery) window.Meanbee.EstimatedDelivery = {}
+        if (!window.Meanbee.EstimatedDelivery.config) window.Meanbee.EstimatedDelivery.config = {};
+        Meanbee.EstimatedDelivery.config.startOfWeek = <?php echo Mage::getStoreConfig('general/locale/firstday'); ?>;
+        Meanbee.EstimatedDelivery.config.weekdayAbbr = <?php echo Mage::helper('meanbee_estimateddelivery')->__("['S', 'M', 'T', 'W', 'T', 'F', 'S']"); ?>;
+        Meanbee.EstimatedDelivery.config.monthAbbr = <?php echo Mage::helper('meanbee_estimateddelivery')->__("['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']"); ?>;
+        Meanbee.EstimatedDelivery.loadedShippingMethods && Meanbee.EstimatedDelivery.loadedShippingMethods();
+    </script>
+    <!-- END MEANBEE ESTIMATED DELIVERY -->
     <script type="text/javascript">
         //<![CDATA[
         <?php if (!empty($shippingCodePrice)): ?>

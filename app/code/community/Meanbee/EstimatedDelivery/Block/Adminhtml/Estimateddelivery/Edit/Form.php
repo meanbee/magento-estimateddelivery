@@ -103,6 +103,12 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Edit_Form exte
             'values'   => Mage::getModel('meanbee_estimateddelivery/source_holidayRegions')->toOptionArray(),
             'required'  => true
         ));
+        $fieldset->addField('select_slot_resolution', 'select', array(
+            'label'    => 'Resolution of delivery slot selection',
+            'title'    => 'Resolution of delivery slot selection',
+            'name'     => 'select_slot_resolution',
+            'values'   => Mage::getModel('meanbee_estimateddelivery/source_timeResolution')->toOptionArray()
+        ));
 
         $form->setValues($model->getData());
         $form->setUseContainer(true);
