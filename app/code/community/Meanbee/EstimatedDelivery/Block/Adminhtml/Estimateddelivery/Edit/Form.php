@@ -36,8 +36,7 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Edit_Form exte
             'label'    => 'Preparation Time excludes Holidays of',
             'title'    => 'Preparation Time excludes Holidays of',
             'name'     => 'dispatch_time_holidays',
-            'values'   => Mage::getModel('meanbee_estimateddelivery/source_holidayRegions')->toOptionArray(),
-            'required'  => true
+            'values'   => Mage::getModel('meanbee_estimateddelivery/source_holidayRegions')->toOptionArray()
         ));
 
         $fieldset->addField('dispatchable_days', 'multiselect', array(
@@ -52,8 +51,7 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Edit_Form exte
             'label'    => 'Dispatchable Days excludes Holidays of',
             'title'    => 'Dispatchable Days excludes Holidays of',
             'name'     => 'dispatch_day_holidays',
-            'values'   => Mage::getModel('meanbee_estimateddelivery/source_holidayRegions')->toOptionArray(),
-            'required'  => true
+            'values'   => Mage::getModel('meanbee_estimateddelivery/source_holidayRegions')->toOptionArray()
         ));
 
         $fieldset->addField('last_dispatch_time', 'select', array(
@@ -84,8 +82,7 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Edit_Form exte
             'label'    => 'Transit Time excludes Holidays of',
             'title'    => 'Transit Time excludes Holidays of',
             'name'     => 'delivery_time_holidays',
-            'values'   => Mage::getModel('meanbee_estimateddelivery/source_holidayRegions')->toOptionArray(),
-            'required'  => true
+            'values'   => Mage::getModel('meanbee_estimateddelivery/source_holidayRegions')->toOptionArray()
         ));
 
         $fieldset->addField('deliverable_days', 'multiselect', array(
@@ -100,8 +97,7 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Edit_Form exte
             'label'    => 'Deliverable Days excludes Holidays of',
             'title'    => 'Deliverable Days excludes Holidays of',
             'name'     => 'delivery_day_holidays',
-            'values'   => Mage::getModel('meanbee_estimateddelivery/source_holidayRegions')->toOptionArray(),
-            'required'  => true
+            'values'   => Mage::getModel('meanbee_estimateddelivery/source_holidayRegions')->toOptionArray()
         ));
 
         $form->setValues($model->getData());
