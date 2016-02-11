@@ -2,12 +2,20 @@
     "use strict";
     if (!window.Meanbee) window.Meanbee = {};
     if (!window.Meanbee.EstimatedDelivery) window.Meanbee.EstimatedDelivery = {}
+
+    function pad(n, width, z) {
+        z = z || '0';
+        n = n + '';
+        return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+    }
+
     Meanbee.EstimatedDelivery.SlotPicker = function() {
         var resolution = 'day',
             year = (new Date).getFullYear(),
             month = (new Date).getMonth(),
             start = new Date(0),
             validDays = [0, 1, 2, 3, 4, 5, 6],
+            holidays = [],
             container;
 
         Object.defineProperty(this, "resolution", {
@@ -35,6 +43,10 @@
                 }
                 validDays = vd.map(function (day) { return Math.floor(+day)});
             }
+        });
+        Object.defineProperty(this, "holidays", {
+            get: function () { return holidays; },
+            set: function (hols) { holidays = hols; }
         });
         Object.defineProperty(this, "container", {
             get: function () { return container; },
@@ -251,7 +263,9 @@
                         dayRadio.name = 'slot-day';
                         dayRadio.value = d;
                         dayRadio.id = 'selector-day-' + d;
-                        if (new Date(this.year, this.month, d + 1) < this.start || !~this.validDays.indexOf(dayOfWeek)) dayRadio.disabled = true;
+                        if (new Date(this.year, this.month, d + 1) < this.start ||
+                            !~this.validDays.indexOf(dayOfWeek)                 ||
+                            ~Meanbee.EstimatedDelivery.holidays[this.holidays].indexOf(this.year+'-'+pad(this.month+1, 2)+'-'+pad(d+1, 2))) dayRadio.disabled = true;
 
                         var dayLabel = document.createElement('label');
                         dayLabel.setAttribute('for', 'selector-day-' + d);
@@ -287,7 +301,12 @@
         var container = document.querySelector('.meanbee_estimateddelivery-selectslot .selector');
         var selected = document.querySelector('input[name="shipping_method"][checked]');
         if (selected && selected.getAttribute('data-resolution')) {
-            render(container, selected.getAttribute('data-resolution'), selected.getAttribute('data-first-valid-date'), selected.getAttribute('data-deliverable-days'));
+            render(container,
+                   selected.getAttribute('data-resolution'),
+                   selected.getAttribute('data-first-valid-date'),
+                   selected.getAttribute('data-deliverable-days'),
+                   selected.getAttribute('data-exclude-holidays')
+            );
         }
     }
 
@@ -297,7 +316,12 @@
                 var container = document.querySelector('.meanbee_estimateddelivery-selectslot .selector');
                 var resolution = event.target.getAttribute('data-resolution');
                 if (resolution) {
-                    render(container, resolution, event.target.getAttribute('data-first-valid-date'), event.target.getAttribute('data-deliverable-days'));
+                    render(container,
+                           resolution,
+                           event.target.getAttribute('data-first-valid-date'),
+                           event.target.getAttribute('data-deliverable-days'),
+                           event.target.getAttribute('data-exclude-holidays')
+                    );
                 } else {
                     while (container.firstChild) container.removeChild(container.firstChild);
                     document.querySelector('.meanbee_estimateddelivery-selectslot').hidden = true;
@@ -305,12 +329,13 @@
             }
         }, false);
     }, false);
-    function render (container, resolution, firstValidDate, deliverableDays) {
+    function render (container, resolution, firstValidDate, deliverableDays, holidays) {
         var slotPicker = new Meanbee.EstimatedDelivery.SlotPicker();
         slotPicker.resolution = resolution;
         slotPicker.container = container;
         slotPicker.start = new Date(firstValidDate);
         slotPicker.validDays = deliverableDays.split(',');
+        slotPicker.holidays = holidays;
         slotPicker.render();
         window.slotPicker = slotPicker;
 

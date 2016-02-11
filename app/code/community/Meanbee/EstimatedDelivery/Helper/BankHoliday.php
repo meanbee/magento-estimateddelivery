@@ -15,7 +15,7 @@ class Meanbee_EstimatedDelivery_Helper_BankHoliday extends Mage_Core_Helper_Abst
         if (!in_array($region, array(Meanbee_EstimatedDelivery_Model_Source_HolidayRegions::ENGLAND_AND_WALES,
                                      Meanbee_EstimatedDelivery_Model_Source_HolidayRegions::SCOTLAND,
                                      Meanbee_EstimatedDelivery_Model_Source_HolidayRegions::NORTHERN_IRELAND))) {
-            Mage::log("Region is not allowed: '{$region}' passed.", Zend_Log::ERROR, 'meanbee.log', true);
+            Mage::log("Region is not allowed: '{$region}' passed.", Zend_Log::ERR, 'meanbee.log', true);
             return array();
         }
         if (!isset($this->_holidays)) {
@@ -37,7 +37,7 @@ class Meanbee_EstimatedDelivery_Helper_BankHoliday extends Mage_Core_Helper_Abst
             if (preg_match(self::DATE_FORMAT, $date)) {
                 return in_array($date, $holidays);
             } else {
-                Mage::log('Date is malformatted, must match \'' . self::DATE_FORMAT . "', '{$date}' passed.", Zend_Log::ERROR, 'meanbee.log', true);
+                Mage::log('Date is malformatted, must match \'' . self::DATE_FORMAT . "', '{$date}' passed.", Zend_Log::ERR, 'meanbee.log', true);
                 return false;
             }
         } elseif (is_int($date)) {
@@ -45,7 +45,7 @@ class Meanbee_EstimatedDelivery_Helper_BankHoliday extends Mage_Core_Helper_Abst
         } elseif ($date instanceof Zend_Date) {
             return in_array($date->toString('YYYY-MM-dd'), $holidays);
         } else {
-            Mage::log('Date is maltyped, must be string, int or Zend_Date.', Zend_Log::ERROR, 'meanbee.log', true);
+            Mage::log('Date is maltyped, must be string, int or Zend_Date.', Zend_Log::ERR, 'meanbee.log', true);
             return false;
         }
     }

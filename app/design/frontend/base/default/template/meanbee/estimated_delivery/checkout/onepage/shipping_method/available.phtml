@@ -52,7 +52,8 @@
                                        class="radio"
                                        data-resolution="<?php echo Mage::helper('meanbee_estimateddelivery')->getSelectSlotResolution($_rate->getCode()); ?>"
                                        data-first-valid-date="<?php echo (new DateTime(Mage::helper('meanbee_estimateddelivery')->getEstimatedDeliveryFrom($_rate->getCode())))->format('Y-m-d'); ?>"
-                                       data-deliverable-days="<?php echo implode(',', Mage::helper('meanbee_estimateddelivery')->getDeliverableDays($_rate->getCode())); ?>"/>
+                                       data-deliverable-days="<?php echo implode(',', Mage::helper('meanbee_estimateddelivery')->getDeliverableDays($_rate->getCode())); ?>"
+                                       data-exclude-holidays="<?php echo Mage::helper('meanbee_estimateddelivery')->getDeliveryDayHolidays($_rate->getCode()); ?>"/>
 
                                 <?php if ($_rate->getCode() === $this->getAddressShippingMethod()): ?>
                                     <script type="text/javascript">
@@ -93,6 +94,13 @@
         Meanbee.EstimatedDelivery.config.startOfWeek = <?php echo Mage::getStoreConfig('general/locale/firstday'); ?>;
         Meanbee.EstimatedDelivery.config.weekdayAbbr = <?php echo Mage::helper('meanbee_estimateddelivery')->__("['S', 'M', 'T', 'W', 'T', 'F', 'S']"); ?>;
         Meanbee.EstimatedDelivery.config.monthAbbr = <?php echo Mage::helper('meanbee_estimateddelivery')->__("['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']"); ?>;
+        Meanbee.EstimatedDelivery.holidays = {};
+        <?php foreach (Mage::getModel('meanbee_estimateddelivery/source_holidayRegions')->toOptionArray() as $regionOption): ?>
+            Meanbee.EstimatedDelivery.holidays['<?php echo $regionOption['value']; ?>'] = [<?php
+                foreach (Mage::helper('meanbee_estimateddelivery/bankHoliday')->getBankHolidays($regionOption['value']) as $holidayDate):
+                    if (strtotime($holidayDate) >= time()): ?>'<?php echo $holidayDate; ?>',<?php endif;
+                endforeach; ?>];
+        <?php endforeach;?>
         Meanbee.EstimatedDelivery.loadedShippingMethods && Meanbee.EstimatedDelivery.loadedShippingMethods();
     </script>
     <!-- END MEANBEE ESTIMATED DELIVERY -->

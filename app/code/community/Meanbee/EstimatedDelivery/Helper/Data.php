@@ -240,6 +240,14 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
         return $this->_getEstimatedDeliveryData($shippingMethod)->getDeliverableDays();
     }
 
+    public function getDeliveryDayHolidays($shippingMethod) {
+        if (!$this->canShowEstimatedDelivery($shippingMethod)) {
+            return false;
+        }
+        
+        return $this->_getEstimatedDeliveryData($shippingMethod)->getData('delivery_day_holidays');
+    }
+
 
     public function getEnabled() {
         return Mage::getStoreConfigFlag(self::XML_PATH_ENABLED);
