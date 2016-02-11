@@ -8,6 +8,10 @@
         n = n + '';
         return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
     }
+    function multido (multidor, multidand, limit) {
+        if (multidor + multidand > limit) return multidor;
+        return multido (multidor + multidand, multidand, limit);
+    }
 
     Meanbee.EstimatedDelivery.SlotPicker = function() {
         var resolution = 'day',
@@ -53,6 +57,22 @@
             set: function (cont) { container = cont instanceof HTMLElement ? cont : container; }
         });
 
+        this.goto = function (obj, dir) {
+            obj = {y: obj.y === undefined ? this.year : obj.y, m: obj.m === undefined ? this.month : obj.m, d:  obj.d === undefined ? 1 : obj.d};
+            var date = new Date(obj.y, obj.m, obj.d + 1);
+            this.year = date.getFullYear();
+            this.month = date.getMonth();
+            this.render();
+            if (obj.d !== undefined) {
+                var targetDay = this.container.querySelector('input[type="radio"][value="' + (date.getDate() - 1) + '"]');
+                if (!targetDay.disabled) targetDay.focus();
+                else {
+                    if (date < this.start) dir = +1;
+                    this.goto({y: obj.y, m: obj.m, d: obj.d + dir}, dir);
+                }
+            }
+        }
+
         this.render = function () {
             while (container.firstChild) container.removeChild(container.firstChild);
 
@@ -65,46 +85,36 @@
             var previousMonthButton = document.createElement('button');
             previousMonthButton.classList.add('selector-previous-month');
             previousMonthButton.type = 'button';
+            previousMonthButton.tabIndex = -1;
             previousMonthButton.addEventListener('click', (function (event) {
-                if (this.month == 0) {
-                    this.month = 11;
-                    this.year--;
-                } else {
-                    this.month--;
-                }
-                this.render();
+                this.goto({m: this.month - 1});
                 container.querySelector('.selector-previous-month').focus();
             }).bind(this), false);
 
             var nextMonthButton = document.createElement('button');
             nextMonthButton.classList.add('selector-next-month');
             nextMonthButton.type = 'button';
+            nextMonthButton.tabIndex = -1;
             nextMonthButton.addEventListener('click', (function (event) {
-                if (this.month == 11) {
-                    this.month = 0;
-                    this.year++;
-                } else {
-                    this.month++;
-                }
-                this.render();
+                this.goto({m: this.month + 1});
                 container.querySelector('.selector-next-month').focus();
             }).bind(this), false);
 
             var previousYearButton = document.createElement('button');
             previousYearButton.classList.add('selector-previous-year');
             previousYearButton.type = 'button';
+            previousYearButton.tabIndex = -1;
             previousYearButton.addEventListener('click', (function (event) {
-                this.year--;
-                this.render();
+                this.goto({y: this.year - 1});
                 container.querySelector('.selector-previous-year').focus();
             }).bind(this), false);
 
             var nextYearButton = document.createElement('button');
             nextYearButton.classList.add('selector-next-year');
             nextYearButton.type = 'button';
+            nextYearButton.tabIndex = -1;
             nextYearButton.addEventListener('click', (function (event) {
-                this.year++;
-                this.render();
+                this.goto({y: this.year + 1});
                 container.querySelector('.selector-next-year').focus();
             }).bind(this), false);
 
@@ -263,9 +273,12 @@
                         dayRadio.name = 'slot-day';
                         dayRadio.value = d;
                         dayRadio.id = 'selector-day-' + d;
+                        dayRadio.setAttribute('data-day-of-week', dayOfWeek);
                         if (new Date(this.year, this.month, d + 1) < this.start ||
                             !~this.validDays.indexOf(dayOfWeek)                 ||
                             ~Meanbee.EstimatedDelivery.holidays[this.holidays].indexOf(this.year+'-'+pad(this.month+1, 2)+'-'+pad(d+1, 2))) dayRadio.disabled = true;
+                        dayRadio.addEventListener('keydown', dayKeyhandler.bind(this), false);
+                        dayRadio.addEventListener('focus', radioDefocus, false);
 
                         var dayLabel = document.createElement('label');
                         dayLabel.setAttribute('for', 'selector-day-' + d);
@@ -296,6 +309,100 @@
                     break;
             }
         }
+        function dayKeyhandler (event) {
+            /** Follows WAI-ARIA best practices: https://www.w3.org/TR/2009/WD-wai-aria-practices-20090224/#datepicker */
+            switch (event.keyCode || event.which) {
+                case 13: // Enter
+                case 32: // Space
+                    /* Spacebar and/or Enter selects a day and deletes all multiple or range selection. */
+                    event.preventDefault();
+                    event.target.checked = !event.target.checked;
+                    break;
+                case 33: // Page Up
+                    event.preventDefault();
+                    if (event.metaKey || event.ctrlKey || event.shiftKey) {
+                        /* Ctrl/Cmd/Shift + Page Up moves the focus to the same date of the previous year. */
+                        this.goto({y: this.year - 1, d: +event.target.value}, -1);
+                    } else {
+                        /* Page Up moves the focus to same day in the previous month. */
+                        this.goto({m: this.month - 1, d: +event.target.value}, -1);
+                    }
+                    break;
+                case 34: // Page Down
+                    event.preventDefault();
+                    if (event.metaKey || event.ctrlKey || event.shiftKey) {
+                        /* Ctrl/Cmd/Shift + Page Down moves the focus to the same date of the next year. */
+                        this.goto({y: this.year + 1, d: +event.target.value}, -1);
+                    } else {
+                        /* Page Down moves the focus to same day in the next month. */
+                        this.goto({m: this.month + 1, d: +event.target.value}, -1);
+                    }
+                    break;
+                case 35: // End
+                    event.preventDefault();
+                    if (event.metaKey || event.ctrlKey) {
+                        /* Ctrl/Cmd + End moves the focus to the last day of the year. */
+                        this.goto({m: 11, d: 31}, -1);
+                    } else {
+                        /* End moves the focus to the last day of the month. */
+                        this.goto({d: event.target.parentElement.parentElement.querySelectorAll('input[type="radio"]').length - 1}, -1);
+                    }
+                    break;
+                case 36: // Home
+                    event.preventDefault();
+                    if (event.metaKey || event.ctrlKey) {
+                        /* Ctrl/Cmd + Home moves the focus to the first day of the year. */
+                        this.goto({m: 0, d: 0}, +1);
+                    } else {
+                        /* Home moves the focus to the first day of the month. */
+                        this.goto({d: 0}, +1);
+                    }
+                    break;
+                case 37: // Left Arrow
+                    event.preventDefault();
+                    if (event.metaKey || event.ctrlKey) {
+                        /* Ctrl/Cmd + Left Arrow moves the focus to the start of the week. */
+                        this.goto({d: +event.target.value - event.target.getAttribute('data-day-of-week')}, +1);
+                    } else {
+                        /* Left Arrow moves the focus to the left, continued to previous week and previous month. */
+                        this.goto({d: +event.target.value - 1}, -1);
+                    }
+                    break;
+                case 38: // Up Arrow
+                    event.preventDefault();
+                    if (event.metaKey || event.ctrlKey) {
+                        /* Ctrl/Cmd + Up Arrow moves the focus to the same day of the week in the first week of the month. */
+                        this.goto({d: +event.target.value % 7}, +1);
+                    } else {
+                        /* Up Arrow moves the focus to the same day of the week in the previous week, continued to the next month. */
+                        this.goto({d: +event.target.value - 7}, +1);
+                    }
+                    break;
+                case 39: // Right Arrow
+                    event.preventDefault();
+                    if (event.metaKey || event.ctrlKey) {
+                        /* Ctrl/Cmd + Right Arrow moves the focus to the end of the week. */
+                        this.goto({d: +event.target.value + 6 - event.target.getAttribute('data-day-of-week')}, -1);
+                    } else {
+                        /* Right Arrow moves the focus to right, continued to the next week and next month. */
+                        this.goto({d: +event.target.value + 1}, +1);
+                    }
+                    break;
+                case 40: // Down Arrow
+                    event.preventDefault();
+                    if (event.metaKey || event.ctrlKey) {
+                        /* Ctrl/Cmd + Down Arrow moves focus to the same day of the week in the last week of the month. */
+                        this.goto({d: multido(+event.target.value, 7, event.target.parentElement.parentElement.querySelectorAll('input[type="radio"]').length - 1)}, -1);
+                    } else {
+                        /* Down Arrow moves the focus to same weekday in the next week, continued to the next month. */
+                        this.goto({d: +event.target.value + 7}, -1);
+                    }
+                    break;
+            }
+        }
+    }
+    function radioDefocus(event) {
+        event.preventDefault();
     }
     Meanbee.EstimatedDelivery.loadedShippingMethods = function () {
         var container = document.querySelector('.meanbee_estimateddelivery-selectslot .selector');
