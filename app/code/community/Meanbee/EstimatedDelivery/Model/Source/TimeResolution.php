@@ -8,7 +8,7 @@ class Meanbee_EstimatedDelivery_Model_Source_TimeResolution {
         $resolutions = array(
             array('label' => 'Disabled', 'value' => null       ),
             array('label' => 'Day',      'value' => self::DAY  ),
-            array('label' => 'Week',     'value' => self::WEEK ),
+            // array('label' => 'Week',     'value' => self::WEEK ), // Partially implemented
             array('label' => 'Month',    'value' => self::MONTH)
         );
 

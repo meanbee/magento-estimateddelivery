@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Meanbee_EstimatedDelivery>
-            <version>1.3.0</version>
+            <version>1.3.1</version>
         </Meanbee_EstimatedDelivery>
     </modules>
     <global>
@@ -41,6 +41,26 @@
                 <class>Meanbee_EstimatedDelivery_Helper</class>
             </meanbee_estimateddelivery>
         </helpers>
+        <events>
+            <checkout_type_onepage_save_order>
+                <observers>
+                    <checkout>
+                        <type>singleton</type>
+                        <class>meanbee_estimateddelivery/observer</class>
+                        <method>saveDeliverySlot</method>
+                    </checkout>
+                </observers>
+            </checkout_type_onepage_save_order>
+            <sales_quote_save_before>
+                <observers>
+                    <save_before>
+                        <type>singleton</type>
+                        <class>meanbee_estimateddelivery/observer</class>
+                        <method>saveQuoteBefore</method>
+                    </save_before>
+                </observers>
+            </sales_quote_save_before>
+        </events>
     </global>
     <admin>
         <routers>
