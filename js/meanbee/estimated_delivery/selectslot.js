@@ -18,6 +18,7 @@
             year = (new Date).getFullYear(),
             month = (new Date).getMonth(),
             start = new Date(0),
+            end = null,
             validDays = [0, 1, 2, 3, 4, 5, 6],
             holidays = [],
             container;
@@ -37,6 +38,10 @@
         Object.defineProperty(this, "start", {
             get: function () { return start; },
             set: function (st) { start = st instanceof Date ? st : start; }
+        });
+        Object.defineProperty(this, "end", {
+            get: function () { return end; },
+            set: function (fin) { end = fin instanceof Date ? fin : end; }
         });
         Object.defineProperty(this, "validDays", {
             get: function () { return validDays; },
@@ -63,7 +68,7 @@
             this.year = date.getFullYear();
             this.month = date.getMonth();
             this.render();
-            if (obj.d !== undefined) {
+            if (obj.d !== undefined && dir) {
                 var targetDay = this.container.querySelector('input[type="radio"][value="' + (date.getDate() - 1) + '"]');
                 if (!targetDay.disabled) targetDay.focus();
                 else {
@@ -141,6 +146,7 @@
                         monthRadio.value = m;
                         monthRadio.id = 'selector-month-' + m;
                         if (new Date(this.year, m + 1, 0) - this.start < 24*60*60) monthRadio.disabled = true;
+                        else if (new Date(this.year, m, 1) > this.end) monthRadio.disabled = true;
                         else if (new Date(this.year, m + 1, 0) - this.start < (7 - this.validDays.length)*24*60*60) {
                             for (var i = this.start; i < new Date(this.year, m + 1, 1); i.setDate(i.getDate(i) + 1)) {
                                 if (!~this.validDays.indexOf(i.getDay())) {
@@ -210,7 +216,12 @@
                         }
                         var day = document.createElement('div');
                         day.classList.add('day');
-                        if (new Date(this.year, this.month, d + 1) < this.start || !~this.validDays.indexOf(dayOfWeek)) day.classList.add('disabled');
+                        if (new Date(this.year, this.month, d + 1) < this.start ||
+                            new Date(this.year, this.month, d + 1) > this.end   ||
+                            !~this.validDays.indexOf(dayOfWeek)                 ||
+                            ~Meanbee.EstimatedDelivery.holidays[this.holidays].indexOf(this.year+'-'+pad(this.month+1, 2)+'-'+pad(d+1, 2))
+                           )
+                            day.classList.add('disabled');
                         day.innerHTML = d + 1;
                         currentLabel.appendChild(day);
                     }
@@ -275,8 +286,11 @@
                         dayRadio.id = 'selector-day-' + d;
                         dayRadio.setAttribute('data-day-of-week', dayOfWeek);
                         if (new Date(this.year, this.month, d + 1) < this.start ||
+                            new Date(this.year, this.month, d + 1) > this.end   ||
                             !~this.validDays.indexOf(dayOfWeek)                 ||
-                            ~Meanbee.EstimatedDelivery.holidays[this.holidays].indexOf(this.year+'-'+pad(this.month+1, 2)+'-'+pad(d+1, 2))) dayRadio.disabled = true;
+                            ~Meanbee.EstimatedDelivery.holidays[this.holidays].indexOf(this.year+'-'+pad(this.month+1, 2)+'-'+pad(d+1, 2))
+                           )
+                            dayRadio.disabled = true;
                         dayRadio.addEventListener('keydown', dayKeyhandler.bind(this), false);
                         dayRadio.addEventListener('focus', radioDefocus, false);
 
@@ -412,7 +426,8 @@
                    selected.getAttribute('data-resolution'),
                    selected.getAttribute('data-first-valid-date'),
                    selected.getAttribute('data-deliverable-days'),
-                   selected.getAttribute('data-exclude-holidays')
+                   selected.getAttribute('data-exclude-holidays'),
+                   selected.getAttribute('data-upper-limit')
             );
         }
     }
@@ -427,7 +442,8 @@
                            resolution,
                            event.target.getAttribute('data-first-valid-date'),
                            event.target.getAttribute('data-deliverable-days'),
-                           event.target.getAttribute('data-exclude-holidays')
+                           event.target.getAttribute('data-exclude-holidays'),
+                           event.target.getAttribute('data-upper-limit')
                     );
                 } else {
                     while (container.firstChild) container.removeChild(container.firstChild);
@@ -436,13 +452,20 @@
             }
         }, false);
     }, false);
-    function render (container, resolution, firstValidDate, deliverableDays, holidays) {
+    function render (container, resolution, firstValidDate, deliverableDays, holidays, upperLimit) {
         var slotPicker = new Meanbee.EstimatedDelivery.SlotPicker();
         slotPicker.resolution = resolution;
         slotPicker.container = container;
         slotPicker.start = new Date(firstValidDate);
         slotPicker.validDays = deliverableDays.split(',');
         slotPicker.holidays = holidays;
+        var upperLimitParts = upperLimit.split(/[^0-9.]/).filter(function (x) { return x.length; }).map(function (x) { return +x; });
+        upperLimit = new Date(
+            slotPicker.start.getFullYear() + upperLimitParts[0],
+            slotPicker.start.getMonth() + upperLimitParts[1],
+            slotPicker.start.getDate() + upperLimitParts[2]
+        );
+        slotPicker.end = upperLimit;
         slotPicker.render();
         window.slotPicker = slotPicker;
 

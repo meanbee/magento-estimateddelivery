@@ -53,7 +53,8 @@
                                        data-resolution="<?php echo Mage::helper('meanbee_estimateddelivery')->getSelectSlotResolution($_rate->getCode()); ?>"
                                        data-first-valid-date="<?php echo (new DateTime(Mage::helper('meanbee_estimateddelivery')->getEstimatedDeliveryFrom($_rate->getCode())))->format('Y-m-d'); ?>"
                                        data-deliverable-days="<?php echo implode(',', Mage::helper('meanbee_estimateddelivery')->getDeliverableDays($_rate->getCode()) ?: array()); ?>"
-                                       data-exclude-holidays="<?php echo Mage::helper('meanbee_estimateddelivery')->getDeliveryDayHolidays($_rate->getCode()); ?>"/>
+                                       data-exclude-holidays="<?php echo Mage::helper('meanbee_estimateddelivery')->getDeliveryDayHolidays($_rate->getCode()); ?>"
+                                       data-upper-limit="<?php echo Mage::helper('meanbee_estimateddelivery')->getSelectSlotUpperLimit($_rate->getCode()); ?>"/>
 
                                 <?php if ($_rate->getCode() === $this->getAddressShippingMethod()): ?>
                                     <script type="text/javascript">

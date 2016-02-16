@@ -232,6 +232,14 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
         return $this->_getEstimatedDeliveryData($shippingMethod)->getSelectSlotResolution();
     }
 
+    public function getSelectSlotUpperLimit($shippingMethod) {
+        if (!$this->canShowEstimatedDelivery($shippingMethod)) {
+            return false;
+        }
+
+        return $this->_getEstimatedDeliveryData($shippingMethod)->getSelectSlotUpperLimit();
+    }
+
     public function getDeliverableDays($shippingMethod) {
         if (!$this->canShowEstimatedDelivery($shippingMethod)) {
             return false;
@@ -244,7 +252,7 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
         if (!$this->canShowEstimatedDelivery($shippingMethod)) {
             return false;
         }
-        
+
         return $this->_getEstimatedDeliveryData($shippingMethod)->getData('delivery_day_holidays');
     }
 
