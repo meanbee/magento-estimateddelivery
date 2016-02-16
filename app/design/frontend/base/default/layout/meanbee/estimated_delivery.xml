@@ -36,4 +36,12 @@
                    template="meanbee/estimated_delivery/checkout/onepage/success/estimated_delivery.phtml"/>
         </reference>
     </checkout_onepage_success>
+
+    <sales_order_view>
+        <reference name="sales.order.info">
+            <action method="setTemplate">
+                <template>meanbee/estimated_delivery/sales/order/info.phtml</template>
+            </action>
+        </reference>
+    </sales_order_view>
 </layout>
