@@ -12,6 +12,19 @@
         if (multidor + multidand > limit) return multidor;
         return multido (multidor + multidand, multidand, limit);
     }
+    function createElement (tagName, options, ctx) {
+        var element = document.createElement(tagName);
+        for (var option of Object.keys(options)) {
+            if (option.substring(0,1) === '@') element.setAttribute(option.substring(1), options[option]);
+            else if (option.substring(0,1) === '%' && element[option.substring(1)] !== undefined) element[option.substring(1)] = options[option];
+            else if (option.substring(0,1) === '+' && element[option.substring(1)] === undefined) element[option.substring(1)] = options[option];
+            else if (option.substring(0,1) === '$') element.setAttribute('data-'+option.substr(1).replace(/([^A-Z])([A-Z])/g, '$1-$2').toLowerCase(), options[option]);
+            else if (option.substring(0,1) === ':') element.addEventListener(option.substr(1), options[option], false);
+            else if (option.substring(0,1) === '=') element.addEventListener(option.substr(1), options[option].bind(ctx), false);
+            //else element.appendChild(createElement(option, options[option]));
+        }
+        return element;
+    };
 
     Meanbee.EstimatedDelivery.SlotPicker = function() {
         var resolution = 'day',
@@ -64,6 +77,7 @@
 
         this.goto = function (obj, dir) {
             obj = {y: obj.y === undefined ? this.year : obj.y, m: obj.m === undefined ? this.month : obj.m, d:  obj.d === undefined ? 1 : obj.d};
+            if (new Date(obj.y, obj.m + 1, 0) < this.start || new Date(obj.y, obj.m, 1) > this.end) return;
             var date = new Date(obj.y, obj.m, obj.d + 1);
             this.year = date.getFullYear();
             this.month = date.getMonth();
@@ -72,8 +86,9 @@
                 var targetDay = this.container.querySelector('input[type="radio"][value="' + (date.getDate() - 1) + '"]');
                 if (!targetDay.disabled) targetDay.focus();
                 else {
-                    if (date < this.start) dir = +1;
-                    this.goto({y: obj.y, m: obj.m, d: obj.d + dir}, dir);
+                    if (date < this.start) this.goto({y: this.start.getFullYear(), m: this.start.getMonth(), d: this.start.getDate()}, +1);
+                    else if (date > this.end) this.goto({y: this.end.getFullYear(), m: this.end.getMonth(), d: this.end.getDate()}, -1);
+                    else this.goto({y: obj.y, m: obj.m, d: obj.d + dir}, dir);
                 }
             }
         }
@@ -81,47 +96,44 @@
         this.render = function () {
             while (container.firstChild) container.removeChild(container.firstChild);
 
-            var header = document.createElement('div');
-            header.classList.add('selector-header');
-
-            var headerText = document.createElement('div');
-            headerText.classList.add('selector-header-text');
-
-            var previousMonthButton = document.createElement('button');
-            previousMonthButton.classList.add('selector-previous-month');
-            previousMonthButton.type = 'button';
-            previousMonthButton.tabIndex = -1;
-            previousMonthButton.addEventListener('click', (function (event) {
-                this.goto({m: this.month - 1});
-                container.querySelector('.selector-previous-month').focus();
-            }).bind(this), false);
-
-            var nextMonthButton = document.createElement('button');
-            nextMonthButton.classList.add('selector-next-month');
-            nextMonthButton.type = 'button';
-            nextMonthButton.tabIndex = -1;
-            nextMonthButton.addEventListener('click', (function (event) {
-                this.goto({m: this.month + 1});
-                container.querySelector('.selector-next-month').focus();
-            }).bind(this), false);
-
-            var previousYearButton = document.createElement('button');
-            previousYearButton.classList.add('selector-previous-year');
-            previousYearButton.type = 'button';
-            previousYearButton.tabIndex = -1;
-            previousYearButton.addEventListener('click', (function (event) {
-                this.goto({y: this.year - 1});
-                container.querySelector('.selector-previous-year').focus();
-            }).bind(this), false);
-
-            var nextYearButton = document.createElement('button');
-            nextYearButton.classList.add('selector-next-year');
-            nextYearButton.type = 'button';
-            nextYearButton.tabIndex = -1;
-            nextYearButton.addEventListener('click', (function (event) {
-                this.goto({y: this.year + 1});
-                container.querySelector('.selector-next-year').focus();
-            }).bind(this), false);
+            var header = createElement('div', {'@class': 'selector-header'}),
+                headerText = createElement('div', {'@class': 'selector-header-text'}),
+                previousMonthButton = createElement('button', {
+                    '@class': 'selector-previous-month',
+                    '%tabIndex': -1,
+                    '%type': 'button',
+                    '=click': function (event) {
+                        this.goto({m: this.month - 1});
+                        container.querySelector('.selector-previous-month').focus();
+                    }
+                }, this),
+                nextMonthButton = createElement('button', {
+                    '@class': 'selector-next-month',
+                    '%tabIndex': -1,
+                    '%type': 'button',
+                    '=click': function (event) {
+                        this.goto({m: this.month + 1});
+                        container.querySelector('.selector-next-month').focus();
+                    }
+                }, this),
+                previousYearButton = createElement('button', {
+                    '@class': 'selector-previous-year',
+                    '%tabIndex': -1,
+                    '%type': 'button',
+                    '=click': function (event) {
+                        this.goto({y: this.year - 1});
+                        container.querySelector('.selector-previous-year').focus();
+                    }
+                }, this),
+                nextYearButton = createElement('button', {
+                    '@class': 'selector-next-year',
+                    '%tabIndex': -1,
+                    '%type': 'button',
+                    '=click': function (event) {
+                        this.goto({y: this.year + 1});
+                        container.querySelector('.selector-next-year').focus();
+                    }
+                }, this);
 
             header.appendChild(headerText);
             header.appendChild(previousYearButton);
@@ -130,24 +142,32 @@
                 header.appendChild(nextMonthButton);
             }
             header.appendChild(nextYearButton);
+
+            container.appendChild(header);
+
             switch (resolution) {
                 case 'month':
                     headerText.innerHTML = this.year;
 
-                    var monthsContainer = document.createElement('div');
-                    monthsContainer.classList.add('selector-months');
+                    var monthsContainer = createElement('div', {'@class': 'selector-months'});
+                    container.appendChild(monthsContainer);
+                    container.appendChild(createElement('input', {
+                        '@name': 'slot-year',
+                        '@type': 'hidden',
+                        '@value': this.year
+                    }));
 
                     for (var m = 0; m < 12; m++) {
-                        var monthRadio = document.createElement('input');
-                        monthRadio.type = 'radio';
-                        monthRadio.required = true;
-                        monthRadio.classList.add('validate-one-required-by-name');
-                        monthRadio.name = 'slot-month';
-                        monthRadio.value = m;
-                        monthRadio.id = 'selector-month-' + m;
-                        if (new Date(this.year, m + 1, 0) - this.start < 24*60*60) monthRadio.disabled = true;
-                        else if (new Date(this.year, m, 1) > this.end) monthRadio.disabled = true;
-                        else if (new Date(this.year, m + 1, 0) - this.start < (7 - this.validDays.length)*24*60*60) {
+                        var monthRadio = createElement('input', {
+                            '@class': 'validate-one-required-by-name',
+                            '@id': 'selector-month-' + m,
+                            '@name': 'slot-month',
+                            '@value': m,
+                            '%disabled': (new Date(this.year, m + 1, 0) - this.start < 24*60*60) ||
+                                         (new Date(this.year, m, 1) > this.end),
+                            '%required': true
+                        })
+                        if (!monthRadio.disabled && new Date(this.year, m + 1, 0) - this.start < (7 - this.validDays.length)*24*60*60) {
                             for (var i = this.start; i < new Date(this.year, m + 1, 1); i.setDate(i.getDate(i) + 1)) {
                                 if (!~this.validDays.indexOf(i.getDay())) {
                                     monthRadio.disabled = true;
@@ -156,45 +176,32 @@
                             }
                         }
 
-                        var monthLabel = document.createElement('label');
-                        monthLabel.setAttribute('for', 'selector-month-' + m);
-                        monthLabel.innerHTML = Meanbee.EstimatedDelivery.config.monthAbbr[m];
-
                         monthsContainer.appendChild(monthRadio);
-                        monthsContainer.appendChild(monthLabel);
+                        monthsContainer.appendChild(createElement('label', {
+                            '@for': 'selector-month-' + m,
+                            '%innerHTML': Meanbee.EstimatedDelivery.config.monthAbbr[m]
+                        }));
                     }
-
-                    var yearField = document.createElement('input');
-                    yearField.type = 'hidden';
-                    yearField.name = 'slot-year';
-                    yearField.value = this.year;
-
-                    container.appendChild(header);
-                    container.appendChild(monthsContainer);
-                    container.appendChild(yearField);
                     break;
                 case 'week':
                     headerText.innerHTML = Meanbee.EstimatedDelivery.config.monthAbbr[this.month] + ' ' + this.year;
 
-                    var weeksContainer = document.createElement('div');
-                    weeksContainer.classList.add('selector-weeks');
-
-                    var tableHeader = document.createElement('div');
-                    tableHeader.classList.add('selector-table-header');
+                    var weeksContainer = createElement('div', {'@class': 'selector-weeks'}),
+                        tableHeader = createElement('div', {'@class': 'selector-table-header'});
                     for (var i = 0, d = Meanbee.EstimatedDelivery.config.startOfWeek; i < 7; i++) {
-                        var day = document.createElement('div');
-                        day.classList.add('day');
-                        day.innerHTML = Meanbee.EstimatedDelivery.config.weekdayAbbr[(i + d) % 7];
-                        tableHeader.appendChild(day);
+                        tableHeader.appendChild(createElement('div', {
+                            '@class': 'day',
+                            '%innerHTML': Meanbee.EstimatedDelivery.config.weekdayAbbr[(i + d) % 7]
+                        }));
                     }
                     weeksContainer.appendChild(tableHeader);
+                    container.appendChild(weeksContainer);
 
                     var dayOfWeek = (new Date(this.year, this.month, 1)).getDay() - Meanbee.EstimatedDelivery.config.startOfWeek;
                     for (var d = 0, w = 0, currentLabel; d < (new Date(this.year, this.month + 1, 0)).getDate(); d++, dayOfWeek++) {
-                        if (dayOfWeek >= 7) {
-                            dayOfWeek = 0;
-                            w++;
-                        }
+                        dayOfWeek %= 7;
+                        w += Math.floor(dayOfWeek / 7);
+
                         if (dayOfWeek == 0 || d == 0) {
                             if (currentLabel) {
                                 weeksContainer.appendChild(weekRadio);
@@ -203,27 +210,23 @@
                                 currentLabel = undefined;
                             }
 
-                            var weekRadio = document.createElement('input');
-                            weekRadio.type = 'radio';
-                            weekRadio.required = true;
-                            weekRadio.classList.add('validate-one-required-by-name');
-                            weekRadio.name = 'slot-week';
-                            weekRadio.value = w;
-                            weekRadio.id = 'selector-week-' + w;
-
-                            currentLabel = document.createElement('label');
-                            currentLabel.setAttribute('for', 'selector-week-' + w);
+                            var weekRadio = createElement('input', {
+                                    '@class': 'validate-one-required-by-name',
+                                    '@id': 'selector-week-' + w,
+                                    '@name': 'slot-week',
+                                    '@type': 'radio',
+                                    '%required': true
+                                }),
+                                currentLabel = createElement('label', {'@for': 'selector-week-' + w});
                         }
-                        var day = document.createElement('div');
-                        day.classList.add('day');
-                        if (new Date(this.year, this.month, d + 1) < this.start ||
-                            new Date(this.year, this.month, d + 1) > this.end   ||
-                            !~this.validDays.indexOf(dayOfWeek)                 ||
-                            ~Meanbee.EstimatedDelivery.holidays[this.holidays].indexOf(this.year+'-'+pad(this.month+1, 2)+'-'+pad(d+1, 2))
-                           )
-                            day.classList.add('disabled');
-                        day.innerHTML = d + 1;
-                        currentLabel.appendChild(day);
+                        currentLabel.appendChild(createElement('div', {
+                            '@class': 'day' + (new Date(this.year, this.month, d + 1) < this.start ||
+                                               new Date(this.year, this.month, d + 1) > this.end   ||
+                                               !~this.validDays.indexOf(dayOfWeek)                 ||
+                                               ~Meanbee.EstimatedDelivery.holidays[this.holidays].indexOf(this.year+'-'+pad(this.month+1, 2)+'-'+pad(d+1, 2))
+                                           ) ? ' disabled' : '',
+                            '%innerHTML': d + 1
+                        }));
                     }
                     if (currentLabel) {
                         weeksContainer.appendChild(weekRadio);
@@ -231,95 +234,71 @@
                         if (!currentLabel.querySelector(':not(.disabled)')) weekRadio.disabled = true;
                     }
 
-                    var yearField = document.createElement('input');
-                    yearField.type = 'hidden';
-                    yearField.name = 'slot-year';
-                    yearField.value = this.year;
-
-                    var monthField = document.createElement('input');
-                    monthField.type = 'hidden';
-                    monthField.name = 'slot-month';
-                    monthField.value = this.month;
-
-                    container.appendChild(header);
-                    container.appendChild(weeksContainer);
-                    container.appendChild(yearField);
-                    container.appendChild(monthField);
+                    container.appendChild(createElement('input', {
+                        '@name': 'slot-year',
+                        '@type': 'hidden',
+                        '@value': this.year
+                    }));
+                    container.appendChild(createElement('input', {
+                        '@name': 'slot-month',
+                        '@type': 'hidden',
+                        '@value': this.month
+                    }));
                     break;
                 case 'day':
                     headerText.innerHTML = Meanbee.EstimatedDelivery.config.monthAbbr[this.month] + ' ' + this.year;
 
-                    var daysContainer = document.createElement('div');
-                    daysContainer.classList.add('selector-days');
-
-                    var tableHeader = document.createElement('div');
-                    tableHeader.classList.add('selector-table-header');
+                    var daysContainer = createElement('div', {'@class': 'selector-days'}),
+                        tableHeader = createElement('div', {'@class': 'selector-table-header'});
                     for (var i = 0, d = Meanbee.EstimatedDelivery.config.startOfWeek; i < 7; i++) {
-                        var day = document.createElement('div');
-                        day.classList.add('day');
-                        day.innerHTML = Meanbee.EstimatedDelivery.config.weekdayAbbr[(i + d) % 7];
-                        tableHeader.appendChild(day);
+                        tableHeader.appendChild(createElement('div', {
+                            '@class': 'day',
+                            '%innerHTML': Meanbee.EstimatedDelivery.config.weekdayAbbr[(i + d) % 7]
+                        }));
                     }
                     daysContainer.appendChild(tableHeader);
+                    container.appendChild(daysContainer);
 
                     var dayOfWeek = (new Date(this.year, this.month, 1)).getDay() - Meanbee.EstimatedDelivery.config.startOfWeek;
                     for (var d = 0, w = 0, currentWeek; d < (new Date(this.year, this.month + 1, 0)).getDate(); d++, dayOfWeek++) {
-                        if (dayOfWeek >= 7) {
-                            dayOfWeek = 0;
-                            w++;
-                        }
-                        if (dayOfWeek == 0 || d == 0) {
-                            if (currentWeek) {
-                                daysContainer.appendChild(currentWeek);
-                                currentWeek = undefined;
-                            }
+                        dayOfWeek %= 7;
+                        w += Math.floor(dayOfWeek / 7);
 
-                            var currentWeek = document.createElement('div');
-                            currentWeek.classList.add('week');
-                        }
-                        var dayRadio = document.createElement('input');
-                        dayRadio.type = 'radio';
-                        dayRadio.required = true;
-                        dayRadio.classList.add('validate-one-required-by-name');
-                        dayRadio.name = 'slot-day';
-                        dayRadio.value = d;
-                        dayRadio.id = 'selector-day-' + d;
-                        dayRadio.setAttribute('data-day-of-week', dayOfWeek);
-                        if (new Date(this.year, this.month, d + 1) < this.start ||
-                            new Date(this.year, this.month, d + 1) > this.end   ||
-                            !~this.validDays.indexOf(dayOfWeek)                 ||
-                            ~Meanbee.EstimatedDelivery.holidays[this.holidays].indexOf(this.year+'-'+pad(this.month+1, 2)+'-'+pad(d+1, 2))
-                           )
-                            dayRadio.disabled = true;
-                        dayRadio.addEventListener('keydown', dayKeyhandler.bind(this), false);
-                        dayRadio.addEventListener('focus', radioDefocus, false);
-
-                        var dayLabel = document.createElement('label');
-                        dayLabel.setAttribute('for', 'selector-day-' + d);
-                        dayLabel.classList.add('day');
-                        dayLabel.innerHTML = d + 1;
-
-                        currentWeek.appendChild(dayRadio);
-                        currentWeek.appendChild(dayLabel);
-                    }
-                    if (currentWeek) {
+                        if (dayOfWeek == 0 || d == 0) var currentWeek = createElement('div', {'@class': 'week'});
                         daysContainer.appendChild(currentWeek);
+
+                        currentWeek.appendChild(createElement('input', {
+                            '@class': 'validate-one-required-by-name',
+                            '@id': 'selector-day-' + d,
+                            '@name': 'slot-day',
+                            '@type': 'radio',
+                            '@value': 'd',
+                            '$dayOfWeek': dayOfWeek,
+                            '%disabled': new Date(this.year, this.month, d + 1) < this.start ||
+                                         new Date(this.year, this.month, d + 1) > this.end   ||
+                                         !~this.validDays.indexOf(dayOfWeek)                 ||
+                                         ~Meanbee.EstimatedDelivery.holidays[this.holidays].indexOf(this.year+'-'+pad(this.month+1, 2)+'-'+pad(d+1, 2)),
+                            '%required': true,
+                            '=keydown': dayKeyhandler,
+                            ':focus': radioDefocus
+                        }));
+                        currentWeek.appendChild(createElement('label', {
+                            '@class': 'day',
+                            '@for': 'selector-day-' + d,
+                            '%innerHTML': d + 1
+                        }));
                     }
 
-                    var yearField = document.createElement('input');
-                    yearField.type = 'hidden';
-                    yearField.name = 'slot-year';
-                    yearField.value = this.year;
-
-                    var monthField = document.createElement('input');
-                    monthField.type = 'hidden';
-                    monthField.name = 'slot-month';
-                    monthField.value = this.month;
-
-                    container.appendChild(header);
-                    container.appendChild(daysContainer);
-                    container.appendChild(yearField);
-                    container.appendChild(monthField);
+                    container.appendChild(createElement('input', {
+                        '@name': 'slot-year',
+                        '@type': 'hidden',
+                        '@value': this.year
+                    }));
+                    container.appendChild(createElement('input', {
+                        '@name': 'slot-month',
+                        '@type': 'hidden',
+                        '@value': this.month
+                    }));
                     break;
             }
         }
@@ -334,81 +313,65 @@
                     break;
                 case 33: // Page Up
                     event.preventDefault();
-                    if (event.metaKey || event.ctrlKey || event.shiftKey) {
-                        /* Ctrl/Cmd/Shift + Page Up moves the focus to the same date of the previous year. */
+                    if (event.metaKey || event.ctrlKey || event.shiftKey) { // Ctrl/Cmd/Shift + Page Up moves the focus to the same date of the previous year.
                         this.goto({y: this.year - 1, d: +event.target.value}, -1);
-                    } else {
-                        /* Page Up moves the focus to same day in the previous month. */
+                    } else {                                                // Page Up moves the focus to same day in the previous month.
                         this.goto({m: this.month - 1, d: +event.target.value}, -1);
                     }
                     break;
                 case 34: // Page Down
                     event.preventDefault();
-                    if (event.metaKey || event.ctrlKey || event.shiftKey) {
-                        /* Ctrl/Cmd/Shift + Page Down moves the focus to the same date of the next year. */
+                    if (event.metaKey || event.ctrlKey || event.shiftKey) { // Ctrl/Cmd/Shift + Page Down moves the focus to the same date of the next year.
                         this.goto({y: this.year + 1, d: +event.target.value}, -1);
-                    } else {
-                        /* Page Down moves the focus to same day in the next month. */
+                    } else {                                                // Page Down moves the focus to same day in the next month.
                         this.goto({m: this.month + 1, d: +event.target.value}, -1);
                     }
                     break;
                 case 35: // End
                     event.preventDefault();
-                    if (event.metaKey || event.ctrlKey) {
-                        /* Ctrl/Cmd + End moves the focus to the last day of the year. */
+                    if (event.metaKey || event.ctrlKey) { // Ctrl/Cmd + End moves the focus to the last day of the year.
                         this.goto({m: 11, d: 31}, -1);
-                    } else {
-                        /* End moves the focus to the last day of the month. */
+                    } else {                              // End moves the focus to the last day of the month.
                         this.goto({d: event.target.parentElement.parentElement.querySelectorAll('input[type="radio"]').length - 1}, -1);
                     }
                     break;
                 case 36: // Home
                     event.preventDefault();
-                    if (event.metaKey || event.ctrlKey) {
-                        /* Ctrl/Cmd + Home moves the focus to the first day of the year. */
+                    if (event.metaKey || event.ctrlKey) { // Ctrl/Cmd + Home moves the focus to the first day of the year.
                         this.goto({m: 0, d: 0}, +1);
-                    } else {
-                        /* Home moves the focus to the first day of the month. */
+                    } else {                              // Home moves the focus to the first day of the month.
                         this.goto({d: 0}, +1);
                     }
                     break;
                 case 37: // Left Arrow
                     event.preventDefault();
-                    if (event.metaKey || event.ctrlKey) {
-                        /* Ctrl/Cmd + Left Arrow moves the focus to the start of the week. */
+                    if (event.metaKey || event.ctrlKey) { // Ctrl/Cmd + Left Arrow moves the focus to the start of the week.
                         this.goto({d: +event.target.value - event.target.getAttribute('data-day-of-week')}, +1);
-                    } else {
-                        /* Left Arrow moves the focus to the left, continued to previous week and previous month. */
+                    } else {                              // Left Arrow moves the focus to the left, continued to previous week and previous month.
                         this.goto({d: +event.target.value - 1}, -1);
                     }
                     break;
                 case 38: // Up Arrow
                     event.preventDefault();
-                    if (event.metaKey || event.ctrlKey) {
-                        /* Ctrl/Cmd + Up Arrow moves the focus to the same day of the week in the first week of the month. */
+                    if (event.metaKey || event.ctrlKey) { // Ctrl/Cmd + Up Arrow moves the focus to the same day of the week in the first week of the month.
                         this.goto({d: +event.target.value % 7}, +1);
-                    } else {
-                        /* Up Arrow moves the focus to the same day of the week in the previous week, continued to the next month. */
+                    } else {                              // Up Arrow moves the focus to the same day of the week in the previous week, continued to the next month.
                         this.goto({d: +event.target.value - 7}, +1);
                     }
                     break;
                 case 39: // Right Arrow
                     event.preventDefault();
-                    if (event.metaKey || event.ctrlKey) {
-                        /* Ctrl/Cmd + Right Arrow moves the focus to the end of the week. */
+                    if (event.metaKey || event.ctrlKey) { // Ctrl/Cmd + Right Arrow moves the focus to the end of the week.
                         this.goto({d: +event.target.value + 6 - event.target.getAttribute('data-day-of-week')}, -1);
-                    } else {
-                        /* Right Arrow moves the focus to right, continued to the next week and next month. */
+                    } else {                              // Right Arrow moves the focus to right, continued to the next week and next month.
                         this.goto({d: +event.target.value + 1}, +1);
                     }
                     break;
                 case 40: // Down Arrow
                     event.preventDefault();
-                    if (event.metaKey || event.ctrlKey) {
-                        /* Ctrl/Cmd + Down Arrow moves focus to the same day of the week in the last week of the month. */
+                    if (event.metaKey || event.ctrlKey) { // Ctrl/Cmd + Down Arrow moves focus to the same day of the week in the last week of the month.
                         this.goto({d: multido(+event.target.value, 7, event.target.parentElement.parentElement.querySelectorAll('input[type="radio"]').length - 1)}, -1);
-                    } else {
-                        /* Down Arrow moves the focus to same weekday in the next week, continued to the next month. */
+                    } else {                              // Down Arrow moves the focus to same weekday in the next week, continued to the next month.
                         this.goto({d: +event.target.value + 7}, -1);
                     }
                     break;
