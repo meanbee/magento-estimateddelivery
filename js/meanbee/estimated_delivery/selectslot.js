@@ -3,15 +3,45 @@
     if (!window.Meanbee) window.Meanbee = {};
     if (!window.Meanbee.EstimatedDelivery) window.Meanbee.EstimatedDelivery = {}
 
+    /**
+     * Left-pads a string to desired length.
+     *
+     * @param  {number | string}  n     Starting string.
+     * @param  number             width Desired string length.
+     * @param  string             z     Character to use as padding.
+     * @return string                   Padded string.
+     */
     function pad(n, width, z) {
         z = z || '0';
         n = n + '';
         return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
     }
+
+    /**
+     * Conceptual opposite of modulo. Repeatedly adds the multidand to the multidor
+     * until doing so exceeds the limit. Result is that of last sum. Unlike modulo,
+     * multido is not restricted to integers.
+     *
+     * @param  number multidor
+     * @param  number multidand
+     * @param  number limit
+     * @return number
+     */
     function multido (multidor, multidand, limit) {
         if (multidor + multidand > limit) return multidor;
         return multido (multidor + multidand, multidand, limit);
     }
+
+    /**
+     * Utility function for creation of HTMLELement objects.
+     *
+     * @param  string      tagName Tag name of the HTML element
+     * @param  object      options Object representing attributes (@), properties (% | +)
+     *                             `data-*` attributes ($) and event listeners (: | =)
+     *                             applied to the element.
+     * @param  object      ctx     The context with which to bind event listeners (=) to.
+     * @return HTMLElement         Constructed HTMLElement
+     */
     function createElement (tagName, options, ctx) {
         var element = document.createElement(tagName);
         for (var option of Object.keys(options)) {
@@ -36,6 +66,7 @@
             holidays = [],
             container;
 
+        // Define accessors and mutators.
         Object.defineProperty(this, "resolution", {
             get: function () { return resolution; },
             set: function (res) { resolution = ~['day', 'week', 'month'].indexOf(res) ? res : resolution; }
@@ -75,6 +106,13 @@
             set: function (cont) { container = cont instanceof HTMLElement ? cont : container; }
         });
 
+        /**
+         * Move pointer (and keyboard focus) to date, if target date is disabled
+         * interate until enabled date is found.
+         *
+         * @param  object   obj Date to move to.
+         * @param  number   dir Direction and step to iterate (-: past, +: future)
+         */
         this.goto = function (obj, dir) {
             obj = {y: obj.y === undefined ? this.year : obj.y, m: obj.m === undefined ? this.month : obj.m, d:  obj.d === undefined ? 1 : obj.d};
             if (new Date(obj.y, obj.m + 1, 0) < this.start || new Date(obj.y, obj.m, 1) > this.end) return;
@@ -93,6 +131,12 @@
             }
         };
 
+        /**
+         * Formats current date for display.
+         *
+         * @param  number day Zero-based index of the day in the current month.
+         * @return string     HTML string with formatted date.
+         */
         this.formatDate = function (day) {
             var date = new Date(this.year, this.month, day + 1);
             var datestr = '<span class="visually-hidden">' + Meanbee.EstimatedDelivery.config.weekday[date.getDay()] + ', </span>' +
@@ -102,6 +146,9 @@
             return datestr;
         };
 
+        /**
+         * Constructs and renders slotpicker to the DOM.
+         */
         this.render = function () {
             while (container.firstChild) container.removeChild(container.firstChild);
             container.setAttribute('role', 'application');
@@ -344,8 +391,16 @@
                     break;
             }
         }
+
+        /**
+         * Handles keyboard navigation according to WAI-ARIA best practices of
+         * a date picker.
+         *
+         * @see https://www.w3.org/TR/2009/WD-wai-aria-practices-20090224/#datepicker
+         *
+         * @param  KeyboardEvent event
+         */
         function dayKeyhandler (event) {
-            /** Follows WAI-ARIA best practices: https://www.w3.org/TR/2009/WD-wai-aria-practices-20090224/#datepicker */
             switch (event.keyCode || event.which) {
                 case 13: // Enter
                 case 32: // Space
@@ -420,9 +475,17 @@
             }
         };
     }
+
+    /**
+     * Prevents automatic selection of a radio button upon focus. Allows for
+     * navigating the option space without forcing a selection.
+     *
+     * @param  FocusEvent event
+     */
     function radioDefocus(event) {
         event.preventDefault();
     }
+
     Meanbee.EstimatedDelivery.loadedShippingMethods = function () {
         var container = document.querySelector('.meanbee_estimateddelivery-selectslot .selector');
         var selected = document.querySelector('input[name="shipping_method"][checked]');
