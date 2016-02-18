@@ -14,17 +14,19 @@
         <p><?php echo $this->__('Your order should be dispatched on or before %s.', $_helper->getDispatchDateString($_method)) ?></p>
         <?php $_dayString = ($_to > 1) ? "days": "day"; ?>
         <?php if ($_order->getDeliverySlot()): ?>
-            <?php switch ($_resolution):
-                case Meanbee_EstimatedDelivery_Model_Source_TimeResolution::MONTH: ?>
+            <?php
+                  switch ($_resolution):
+                      case Meanbee_EstimatedDelivery_Model_Source_TimeResolution::MONTH:
+            ?>
                     <p><?php echo $this->__('You have requested that order be delivered in %s.', $_slot->format('F, Y')); ?></p>
-                <?php break;
-                case Meanbee_EstimatedDelivery_Model_Source_TimeResolution::WEEK: ?>
-
-                <?php break;
-                case Meanbee_EstimatedDelivery_Model_Source_TimeResolution::DAY: ?>
+                <?php break; ?>
+                <?php case Meanbee_EstimatedDelivery_Model_Source_TimeResolution::WEEK: ?>
+                    <?php // NOT IMPLEMENTED ?>
+                <?php break; ?>
+                <?php case Meanbee_EstimatedDelivery_Model_Source_TimeResolution::DAY: ?>
                     <p><?php echo $this->__('You have requested that order be delivered on %s.', $_slot->format('l, jS F, Y')); ?></p>
-                <?php break;
-            endswitch; ?>
+                <?php break; ?>
+            <?php endswitch; ?>
         <?php elseif ($_from == $_to): ?>
             <p><?php echo $this->__('You should then receive your order in %s %s.', $_from, $_dayString) ?></p>
         <?php else: ?>
