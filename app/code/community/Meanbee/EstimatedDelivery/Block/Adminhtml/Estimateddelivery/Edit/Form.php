@@ -1,5 +1,6 @@
 <?php
 class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Edit_Form extends Mage_Adminhtml_Block_Widget_Form {
+    const ZERO_DATETIME_INTERVAL = 'P0Y0M0DT0H0M0S'; // @see en.wikipedia.org/wiki/ISO_8601#Time_intervals
 
     protected function _prepareForm() {
         $id = $this->getRequest()->getParam('id');
@@ -116,7 +117,7 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Edit_Form exte
             'label'    => 'Upper limit of delivery slot selection',
             'title'    => 'Upper limit of delivery slot selection',
             'name'     => 'select_slot_upper_limit',
-            'value'    => 'P0Y0M0DT0H0M0S',
+            'value'    => self::ZERO_DATETIME_INTERVAL
         ));
 
         $form->setValues($model->getData());
