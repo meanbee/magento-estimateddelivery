@@ -91,13 +91,26 @@
                     else this.goto({y: obj.y, m: obj.m, d: obj.d + dir}, dir);
                 }
             }
-        }
+        };
+
+        this.formatDate = function (day) {
+            var date = new Date(this.year, this.month, day + 1);
+            var datestr = '<span class="visually-hidden">' + Meanbee.EstimatedDelivery.config.weekday[date.getDay()] + ', </span>' +
+                          date.getDate() + '<span class="visually-hidden">' +
+                          Meanbee.EstimatedDelivery.config.ordinal[Math.min(((date.getDate() - 1) % 30) % 20, Meanbee.EstimatedDelivery.config.ordinal.length - 1)] +
+                          ' ' + Meanbee.EstimatedDelivery.config.month[date.getMonth()] +  ' ' + date.getFullYear() + '</span>';
+            return datestr;
+        };
 
         this.render = function () {
             while (container.firstChild) container.removeChild(container.firstChild);
+            container.setAttribute('role', 'application');
 
             var header = createElement('div', {'@class': 'selector-header'}),
-                headerText = createElement('div', {'@class': 'selector-header-text'}),
+                headerText = createElement('div', {
+                    '@class': 'selector-header-text',
+                    '@role': 'heading'
+                }),
                 previousMonthButton = createElement('button', {
                     '@class': 'selector-previous-month',
                     '%tabIndex': -1,
@@ -149,7 +162,10 @@
                 case 'month':
                     headerText.innerHTML = this.year;
 
-                    var monthsContainer = createElement('div', {'@class': 'selector-months'});
+                    var monthsContainer = createElement('div', {
+                        '@class': 'selector-months',
+                        '@role': 'grid'
+                    });
                     container.appendChild(monthsContainer);
                     container.appendChild(createElement('input', {
                         '@name': 'slot-year',
@@ -162,6 +178,7 @@
                             '@class': 'validate-one-required-by-name',
                             '@id': 'selector-month-' + m,
                             '@name': 'slot-month',
+                            '@role': 'gridcell',
                             '@value': m,
                             '%disabled': (new Date(this.year, m + 1, 0) - this.start < 24*60*60) ||
                                          (new Date(this.year, m, 1) > this.end),
@@ -179,19 +196,27 @@
                         monthsContainer.appendChild(monthRadio);
                         monthsContainer.appendChild(createElement('label', {
                             '@for': 'selector-month-' + m,
-                            '%innerHTML': Meanbee.EstimatedDelivery.config.monthAbbr[m]
+                            '%innerHTML': '<abbr title="' + Meanbee.EstimatedDelivery.config.month[m] + '">' + Meanbee.EstimatedDelivery.config.monthAbbr[m] + '</abbr>'
                         }));
                     }
                     break;
                 case 'week':
-                    headerText.innerHTML = Meanbee.EstimatedDelivery.config.monthAbbr[this.month] + ' ' + this.year;
+                    headerText.innerHTML = '<abbr title="' + Meanbee.EstimatedDelivery.config.month[this.month] + '">' +
+                                           Meanbee.EstimatedDelivery.config.monthAbbr[this.month] + '</abbr>&nbsp;' + this.year;
 
-                    var weeksContainer = createElement('div', {'@class': 'selector-weeks'}),
-                        tableHeader = createElement('div', {'@class': 'selector-table-header'});
+                    var weeksContainer = createElement('div', {
+                            '@class': 'selector-weeks',
+                            '@role': 'grid'
+                        }),
+                        tableHeader = createElement('div', {
+                            '@class': 'selector-table-header',
+                            '@role': 'row'
+                        });
                     for (var i = 0, d = Meanbee.EstimatedDelivery.config.startOfWeek; i < 7; i++) {
                         tableHeader.appendChild(createElement('div', {
                             '@class': 'day',
-                            '%innerHTML': Meanbee.EstimatedDelivery.config.weekdayAbbr[(i + d) % 7]
+                            '%innerHTML': '<abbr title="' + Meanbee.EstimatedDelivery.config.weekday[(i + d) % 7] + '">' +
+                                          Meanbee.EstimatedDelivery.config.weekdayAbbr[(i + d) % 7] + '</abbr>'
                         }));
                     }
                     weeksContainer.appendChild(tableHeader);
@@ -214,10 +239,14 @@
                                     '@class': 'validate-one-required-by-name',
                                     '@id': 'selector-week-' + w,
                                     '@name': 'slot-week',
+                                    '@role': 'gridcell',
                                     '@type': 'radio',
                                     '%required': true
                                 }),
-                                currentLabel = createElement('label', {'@for': 'selector-week-' + w});
+                                currentLabel = createElement('label', {
+                                    '@for': 'selector-week-' + w,
+                                    '@rule': 'row'
+                                });
                         }
                         currentLabel.appendChild(createElement('div', {
                             '@class': 'day' + (new Date(this.year, this.month, d + 1) < this.start ||
@@ -225,7 +254,7 @@
                                                !~this.validDays.indexOf(dayOfWeek)                 ||
                                                ~Meanbee.EstimatedDelivery.holidays[this.holidays].indexOf(this.year+'-'+pad(this.month+1, 2)+'-'+pad(d+1, 2))
                                            ) ? ' disabled' : '',
-                            '%innerHTML': d + 1
+                            '%innerHTML': this.formatDate(d)
                         }));
                     }
                     if (currentLabel) {
@@ -246,14 +275,23 @@
                     }));
                     break;
                 case 'day':
-                    headerText.innerHTML = Meanbee.EstimatedDelivery.config.monthAbbr[this.month] + ' ' + this.year;
+                    headerText.innerHTML = '<abbr title="' + Meanbee.EstimatedDelivery.config.month[this.month] + '">' +
+                                           Meanbee.EstimatedDelivery.config.monthAbbr[this.month] + '</abbr>&nbsp;' + this.year;
 
-                    var daysContainer = createElement('div', {'@class': 'selector-days'}),
-                        tableHeader = createElement('div', {'@class': 'selector-table-header'});
+                    var daysContainer = createElement('div', {
+                            '@class': 'selector-days',
+                            '@role': 'grid'
+                        }),
+                        tableHeader = createElement('div', {
+                            '@class': 'selector-table-header',
+                            '@role': 'row'
+                        });
                     for (var i = 0, d = Meanbee.EstimatedDelivery.config.startOfWeek; i < 7; i++) {
                         tableHeader.appendChild(createElement('div', {
                             '@class': 'day',
-                            '%innerHTML': Meanbee.EstimatedDelivery.config.weekdayAbbr[(i + d) % 7]
+                            '@role': 'columnheader',
+                            '%innerHTML': '<abbr title="' + Meanbee.EstimatedDelivery.config.weekday[(i + d) % 7] + '">' +
+                                          Meanbee.EstimatedDelivery.config.weekdayAbbr[(i + d) % 7] + '</abbr>'
                         }));
                     }
                     daysContainer.appendChild(tableHeader);
@@ -264,13 +302,17 @@
                         dayOfWeek %= 7;
                         w += Math.floor(dayOfWeek / 7);
 
-                        if (dayOfWeek == 0 || d == 0) var currentWeek = createElement('div', {'@class': 'week'});
+                        if (dayOfWeek == 0 || d == 0) var currentWeek = createElement('div', {
+                            '@class': 'week',
+                            '@role': 'row'
+                        });
                         daysContainer.appendChild(currentWeek);
 
                         currentWeek.appendChild(createElement('input', {
                             '@class': 'validate-one-required-by-name',
                             '@id': 'selector-day-' + d,
                             '@name': 'slot-day',
+                            '@role': 'gridcell',
                             '@type': 'radio',
                             '@value': 'd',
                             '$dayOfWeek': dayOfWeek,
@@ -285,7 +327,7 @@
                         currentWeek.appendChild(createElement('label', {
                             '@class': 'day',
                             '@for': 'selector-day-' + d,
-                            '%innerHTML': d + 1
+                            '%innerHTML': this.formatDate(d)
                         }));
                     }
 
@@ -376,7 +418,7 @@
                     }
                     break;
             }
-        }
+        };
     }
     function radioDefocus(event) {
         event.preventDefault();
