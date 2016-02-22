@@ -11,4 +11,12 @@
             <block type="meanbee_estimateddelivery/adminhtml_estimateddelivery_edit" name="meanbee.estimateddelivery.edit"></block>
         </reference>
     </adminhtml_estimateddelivery_edit>
+
+    <adminhtml_sales_order_view>
+        <reference name="order_tab_info">
+            <action method="setTemplate">
+                <template>meanbee/estimated_delivery/sales/order/view/tab/info.phtml</template>
+            </action>
+        </reference>
+    </adminhtml_sales_order_view>
 </layout>

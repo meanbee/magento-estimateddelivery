@@ -7,15 +7,30 @@
 <?php if ($_order && $_helper->canShowEstimatedDelivery($_method)): ?>
     <?php $_from = $_helper->getDaysUntilEstimatedDeliveryFrom($_method); ?>
     <?php $_to = $_helper->getDaysUntilEstimatedDeliveryTo($_method); ?>
+    <?php $_resolution = $_helper->getSelectSlotResolution($_method); ?>
+    <?php $_slot = new DateTime($_order->getDeliverySlot(), new DateTimeZone(Mage::getStoreConfig('general/locale/timezone'))); ?>
     <div class="estimated_delivery">
         <h2 class="sub-title"><?php echo $this->__('Estimated Delivery') ?></h2>
         <p><?php echo $this->__('Your order should be dispatched on or before %s.', $_helper->getDispatchDateString($_method)) ?></p>
         <?php $_dayString = ($_to > 1) ? "days": "day"; ?>
-        <?php if ($_from == $_to): ?>
+        <?php if ($_order->getDeliverySlot()): ?>
+            <?php
+                  switch ($_resolution):
+                      case Meanbee_EstimatedDelivery_Model_Source_TimeResolution::MONTH:
+            ?>
+                    <p><?php echo $this->__('You have requested that order be delivered in %s.', $_slot->format('F, Y')); ?></p>
+                <?php break; ?>
+                <?php case Meanbee_EstimatedDelivery_Model_Source_TimeResolution::WEEK: ?>
+                    <?php // NOT IMPLEMENTED ?>
+                <?php break; ?>
+                <?php case Meanbee_EstimatedDelivery_Model_Source_TimeResolution::DAY: ?>
+                    <p><?php echo $this->__('You have requested that order be delivered on %s.', $_slot->format('l, jS F, Y')); ?></p>
+                <?php break; ?>
+            <?php endswitch; ?>
+        <?php elseif ($_from == $_to): ?>
             <p><?php echo $this->__('You should then receive your order in %s %s.', $_from, $_dayString) ?></p>
         <?php else: ?>
             <p><?php echo $this->__('You should then receive your order in %s - %s %s.', $_from, $_to, $_dayString) ?></p>
         <?php endif ?>
     </div>
 <?php endif; ?>
-

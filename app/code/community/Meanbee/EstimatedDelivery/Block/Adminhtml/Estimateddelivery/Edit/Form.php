@@ -1,5 +1,6 @@
 <?php
 class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Edit_Form extends Mage_Adminhtml_Block_Widget_Form {
+    const ZERO_DATETIME_INTERVAL = 'P0Y0M0DT0H0M0S'; // @see en.wikipedia.org/wiki/ISO_8601#Time_intervals
 
     protected function _prepareForm() {
         $id = $this->getRequest()->getParam('id');
@@ -98,6 +99,21 @@ class Meanbee_EstimatedDelivery_Block_Adminhtml_Estimateddelivery_Edit_Form exte
             'title'    => 'Deliverable Days excludes Holidays of',
             'name'     => 'delivery_day_holidays',
             'values'   => Mage::getModel('meanbee_estimateddelivery/source_holidayRegions')->toOptionArray()
+        ));
+
+        $fieldset->addField('select_slot_resolution', 'select', array(
+            'label'    => 'Resolution of delivery slot selection',
+            'title'    => 'Resolution of delivery slot selection',
+            'name'     => 'select_slot_resolution',
+            'values'   => Mage::getModel('meanbee_estimateddelivery/source_timeResolution')->toOptionArray()
+        ));
+
+        $fieldset->addType('dateinterval', Mage::getConfig()->getBlockClassName('meanbee_estimateddelivery/form_element_dateInterval'));
+        $fieldset->addField('select_slot_upper_limit', 'dateinterval', array(
+            'label'    => 'Upper limit of delivery slot selection',
+            'title'    => 'Upper limit of delivery slot selection',
+            'name'     => 'select_slot_upper_limit',
+            'value'    => self::ZERO_DATETIME_INTERVAL
         ));
 
         $form->setValues($model->getData());

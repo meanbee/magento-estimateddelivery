@@ -1,6 +1,14 @@
 <?xml version="1.0"?>
 <layout version="0.1.0">
     <checkout_onepage_index>
+        <reference name="head">
+            <action method="addCss" ifconfig="meanbee_estimateddelivery/general/enabled">
+                <stylesheet>css/meanbee/estimated_delivery.css</stylesheet>
+            </action>
+            <action method="addJs" ifconfig="meanbee_estimateddelivery/general/enabled">
+                <script>meanbee/estimated_delivery/selectslot.js</script>
+            </action>
+        </reference>
         <reference name="checkout.onepage.shipping_method.available">
             <action method="setTemplate" ifconfig="meanbee_estimateddelivery/general/enabled">
                 <template>meanbee/estimated_delivery/checkout/onepage/shipping_method/available.phtml</template>
@@ -28,4 +36,12 @@
                    template="meanbee/estimated_delivery/checkout/onepage/success/estimated_delivery.phtml"/>
         </reference>
     </checkout_onepage_success>
+
+    <sales_order_view>
+        <reference name="sales.order.info">
+            <action method="setTemplate">
+                <template>meanbee/estimated_delivery/sales/order/info.phtml</template>
+            </action>
+        </reference>
+    </sales_order_view>
 </layout>
