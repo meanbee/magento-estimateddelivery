@@ -2,27 +2,12 @@
 class Meanbee_EstimatedDelivery_Model_Observer
 {
     /**
-     * Save the delivery slot on the order from the quote.
-     *
-     * @param  Varien_Event_Observer $observer
-     */
-    public function saveDeliverySlot($observer)
-    {
-        Mage::log(get_class($observer), Zend_Log::DEBUG, 'meanbee.log', true);
-        $event = $observer->getEvent();
-        $quote = $event->getQuote();
-        $order = $event->getOrder();
-        $order->setDeliverySlot($quote->getDeliverySlot());
-    }
-
-    /**
      * Save chosen slot to quote object.
      *
      * @param  Varien_Event_Observer $observer
      */
     public function saveQuoteBefore($observer)
     {
-        Mage::log(get_class($observer), Zend_Log::DEBUG, 'meanbee.log', true);
         $quote = $observer->getQuote();
         $fields = Mage::app()->getFrontController()->getRequest()->getPost();
         $year = isset($fields['slot-year']) ? $fields['slot-year'] : null;
@@ -33,7 +18,7 @@ class Meanbee_EstimatedDelivery_Model_Observer
         if ($year && $month && $day) {
             $deliverySlot = "{$year}-{$month}-{$day}";
         } else if ($year && $month && $week) {
-
+            // NOT IMPLEMENTED
         } else if ($year && $month) {
             $deliverySlot = "{$year}-{$month}";
         } else return;

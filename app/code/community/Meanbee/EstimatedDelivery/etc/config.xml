@@ -42,15 +42,6 @@
             </meanbee_estimateddelivery>
         </helpers>
         <events>
-            <checkout_type_onepage_save_order>
-                <observers>
-                    <checkout>
-                        <type>singleton</type>
-                        <class>meanbee_estimateddelivery/observer</class>
-                        <method>saveDeliverySlot</method>
-                    </checkout>
-                </observers>
-            </checkout_type_onepage_save_order>
             <sales_quote_save_before>
                 <observers>
                     <save_before>
@@ -61,6 +52,13 @@
                 </observers>
             </sales_quote_save_before>
         </events>
+        <fieldsets>
+            <sales_convert_quote>
+                <delivery_slot>
+                    <to_order>*</to_order>
+                </delivery_slot>
+            </sales_convert_quote>
+        </fieldsets>
     </global>
     <admin>
         <routers>

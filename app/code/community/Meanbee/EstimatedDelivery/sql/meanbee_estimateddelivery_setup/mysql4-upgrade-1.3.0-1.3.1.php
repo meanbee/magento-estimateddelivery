@@ -1,7 +1,7 @@
 <?php
 
 /** @var Mage_Sales_Model_Mysql4_Setup $installer */
-$installer = new Mage_Sales_Model_Mysql4_Setup;
+$installer = new Mage_Sales_Model_Resource_Setup;
 
 $installer->startSetup();
 
