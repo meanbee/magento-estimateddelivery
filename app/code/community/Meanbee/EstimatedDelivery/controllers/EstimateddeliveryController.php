@@ -28,6 +28,8 @@ class Meanbee_EstimatedDelivery_EstimateddeliveryController extends Mage_Adminht
                 $model->load($id);
             }
             $model->addData($postData);
+            $dateInterval = $model->getSelectSlotUpperLimit();
+            $model->setSelectSlotUpperLimit("P{$dateInterval[0]}Y{$dateInterval[1]}M{$dateInterval[2]}DT0H0M0S");
 
             if (($errors = $model->validate()) !== true) {
                 $errorHtml = '';

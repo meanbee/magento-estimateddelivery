@@ -44,7 +44,17 @@
                                 <?php if ($_sole) : ?>
                                     <span class="no-display"><input name="shipping_method" type="radio" value="<?php echo $_rate->getCode() ?>" id="s_method_<?php echo $_rate->getCode() ?>" checked="checked" /></span>
                                 <?php else: ?>
-                                <input name="shipping_method" type="radio" value="<?php echo $_rate->getCode() ?>" id="s_method_<?php echo $_rate->getCode() ?>"<?php if($_rate->getCode()===$this->getAddressShippingMethod()) echo ' checked="checked"' ?> class="radio"/>
+                                <input name="shipping_method"
+                                       type="radio"
+                                       value="<?php echo $_rate->getCode() ?>"
+                                       id="s_method_<?php echo $_rate->getCode() ?>"
+                                       <?php if($_rate->getCode()===$this->getAddressShippingMethod()) echo ' checked="checked"' ?>
+                                       class="radio"
+                                       data-resolution="<?php echo Mage::helper('meanbee_estimateddelivery')->getSelectSlotResolution($_rate->getCode()); ?>"
+                                       data-first-valid-date="<?php echo (new DateTime(Mage::helper('meanbee_estimateddelivery')->getEstimatedDeliveryFrom($_rate->getCode())))->format('Y-m-d'); ?>"
+                                       data-deliverable-days="<?php echo implode(',', Mage::helper('meanbee_estimateddelivery')->getDeliverableDays($_rate->getCode()) ?: array()); ?>"
+                                       data-exclude-holidays="<?php echo Mage::helper('meanbee_estimateddelivery')->getDeliveryDayHolidays($_rate->getCode()); ?>"
+                                       data-upper-limit="<?php echo Mage::helper('meanbee_estimateddelivery')->getSelectSlotUpperLimit($_rate->getCode()); ?>"/>
 
                                 <?php if ($_rate->getCode() === $this->getAddressShippingMethod()): ?>
                                     <script type="text/javascript">
@@ -73,6 +83,33 @@
             </dd>
         <?php endforeach; ?>
     </dl>
+    <!-- START MEANBEE ESTIMATED DELIVERY -->
+    <div class="meanbee_estimateddelivery-selectslot" hidden>
+        <h3><?php echo Mage::helper('meanbee_estimateddelivery')->__('Select Slot'); ?></h3>
+        <div class="selector"></div>
+    </div>
+    <script>
+        if (!window.Meanbee) window.Meanbee = {};
+        if (!window.Meanbee.EstimatedDelivery) window.Meanbee.EstimatedDelivery = {}
+        if (!window.Meanbee.EstimatedDelivery.config) window.Meanbee.EstimatedDelivery.config = {};
+        Meanbee.EstimatedDelivery.config.startOfWeek = <?php echo Mage::getStoreConfig('general/locale/firstday'); ?>;
+        Meanbee.EstimatedDelivery.config.weekday = <?php echo Mage::helper('meanbee_estimateddelivery')->__("['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']"); ?>;
+        Meanbee.EstimatedDelivery.config.weekdayAbbr = <?php echo Mage::helper('meanbee_estimateddelivery')->__("['S', 'M', 'T', 'W', 'T', 'F', 'S']"); ?>;
+        Meanbee.EstimatedDelivery.config.month = <?php echo Mage::helper('meanbee_estimateddelivery')->__("['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'Novemeber', 'December']"); ?>;
+        Meanbee.EstimatedDelivery.config.monthAbbr = <?php echo Mage::helper('meanbee_estimateddelivery')->__("['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']"); ?>;
+        Meanbee.EstimatedDelivery.config.ordinal = <?php echo Mage::helper('meanbee_estimateddelivery')->__("['st', 'nd', 'rd', 'th']"); ?>;
+        Meanbee.EstimatedDelivery.holidays = {};
+        <?php foreach (Mage::getModel('meanbee_estimateddelivery/source_holidayRegions')->toOptionArray() as $regionOption):
+            if($regionOption['value']): ?>
+            Meanbee.EstimatedDelivery.holidays['<?php echo $regionOption['value']; ?>'] = [<?php
+                foreach (Mage::helper('meanbee_estimateddelivery/bankHoliday')->getBankHolidays($regionOption['value']) as $holidayDate):
+                    if (strtotime($holidayDate) >= time()): ?>'<?php echo $holidayDate; ?>',<?php endif;
+                endforeach; ?>];
+            <?php endif;
+        endforeach;?>
+        Meanbee.EstimatedDelivery.loadedShippingMethods && Meanbee.EstimatedDelivery.loadedShippingMethods();
+    </script>
+    <!-- END MEANBEE ESTIMATED DELIVERY -->
     <script type="text/javascript">
         //<![CDATA[
         <?php if (!empty($shippingCodePrice)): ?>
