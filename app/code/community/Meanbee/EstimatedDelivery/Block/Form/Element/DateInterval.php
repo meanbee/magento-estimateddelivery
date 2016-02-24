@@ -42,7 +42,7 @@ class Meanbee_EstimatedDelivery_Block_Form_Element_DateInterval
             'type'        => 'number',
             'value'       => $parts[2]
         );
-        $yearFieldAttr = array(
+        $dayFieldAttr = array(
             'id'          => $this->getHtmlId() . '-d',
             'min'         => 0,
             'name'        => $this->getName() . '[]',
