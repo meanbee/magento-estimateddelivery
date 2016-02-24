@@ -288,6 +288,7 @@
                                     '@name': 'slot-week',
                                     '@role': 'gridcell',
                                     '@type': 'radio',
+                                    '@value': w,
                                     '%required': true
                                 }),
                                 currentLabel = createElement('label', {
@@ -361,7 +362,7 @@
                             '@name': 'slot-day',
                             '@role': 'gridcell',
                             '@type': 'radio',
-                            '@value': 'd',
+                            '@value': d,
                             '$dayOfWeek': dayOfWeek,
                             '%disabled': new Date(this.year, this.month, d + 1) < this.start ||
                                          new Date(this.year, this.month, d + 1) > this.end   ||
@@ -370,7 +371,7 @@
                             '%required': true,
                             '=keydown': dayKeyhandler,
                             ':focus': radioDefocus
-                        }));
+                        }, this));
                         currentWeek.appendChild(createElement('label', {
                             '@class': 'day',
                             '@for': 'selector-day-' + d,
