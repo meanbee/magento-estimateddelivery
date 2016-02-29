@@ -44,4 +44,28 @@
             </action>
         </reference>
     </sales_order_view>
+
+    <onestepcheckout_index_index>
+        <reference name="head">
+            <action method="addCss" ifconfig="meanbee_estimateddelivery/general/enabled">
+                <stylesheet>css/meanbee/estimated_delivery.css</stylesheet>
+            </action>
+            <action method="addJs" ifconfig="meanbee_estimateddelivery/general/enabled">
+                <script>meanbee/estimated_delivery/selectslot.js</script>
+            </action>
+        </reference>
+        <reference name="choose-shipping-method">
+            <action method="setTemplate" ifconfig="meanbee_estimateddelivery/general/enabled">
+                <template>meanbee/estimated_delivery/checkout/onepage/shipping_method/available.phtml</template>
+            </action>
+        </reference>
+    </onestepcheckout_index_index>
+
+    <onestepcheckout_ajax_save_billing>
+        <reference name="choose-shipping-method">
+            <action method="setTemplate" ifconfig="meanbee_estimateddelivery/general/enabled">
+                <template>meanbee/estimated_delivery/checkout/onepage/shipping_method/available.phtml</template>
+            </action>
+        </reference>
+    </onestepcheckout_ajax_save_billing>
 </layout>
