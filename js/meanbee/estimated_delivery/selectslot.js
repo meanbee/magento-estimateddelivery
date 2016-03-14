@@ -300,7 +300,7 @@
                             '@class': 'day' + (new Date(this.year, this.month, d + 1) < this.start ||
                                                new Date(this.year, this.month, d + 1) > this.end   ||
                                                !~this.validDays.indexOf(dayOfWeek)                 ||
-                                               ~Meanbee.EstimatedDelivery.holidays[this.holidays].indexOf(this.year+'-'+pad(this.month+1, 2)+'-'+pad(d+1, 2))
+                                               ~(Meanbee.EstimatedDelivery.holidays[this.holidays]||[]).indexOf(this.year+'-'+pad(this.month+1, 2)+'-'+pad(d+1, 2))
                                            ) ? ' disabled' : '',
                             '%innerHTML': this.formatDate(d)
                         }));
@@ -367,7 +367,7 @@
                             '%disabled': new Date(this.year, this.month, d + 1) < this.start ||
                                          new Date(this.year, this.month, d + 1) > this.end   ||
                                          !~this.validDays.indexOf(dayOfWeek)                 ||
-                                         ~Meanbee.EstimatedDelivery.holidays[this.holidays].indexOf(this.year+'-'+pad(this.month+1, 2)+'-'+pad(d+1, 2)),
+                                         ~(Meanbee.EstimatedDelivery.holidays[this.holidays]||[]).indexOf(this.year+'-'+pad(this.month+1, 2)+'-'+pad(d+1, 2)),
                             '%required': true,
                             '=keydown': dayKeyhandler,
                             ':focus': radioDefocus
@@ -491,7 +491,7 @@
         var container = document.querySelector('.meanbee_estimateddelivery-selectslot .selector');
         var selected = document.querySelector('input[name="shipping_method"][checked]');
         if (selected && selected.getAttribute('data-resolution')) {
-            render(container,
+            Meanbee.EstimatedDelivery.render(container,
                    selected.getAttribute('data-resolution'),
                    selected.getAttribute('data-first-valid-date'),
                    selected.getAttribute('data-deliverable-days'),
@@ -507,7 +507,7 @@
                 var container = document.querySelector('.meanbee_estimateddelivery-selectslot .selector');
                 var resolution = event.target.getAttribute('data-resolution');
                 if (resolution) {
-                    render(container,
+                    Meanbee.EstimatedDelivery.render(container,
                            resolution,
                            event.target.getAttribute('data-first-valid-date'),
                            event.target.getAttribute('data-deliverable-days'),
@@ -521,7 +521,7 @@
             }
         }, false);
     }, false);
-    function render (container, resolution, firstValidDate, deliverableDays, holidays, upperLimit) {
+    Meanbee.EstimatedDelivery.render = function (container, resolution, firstValidDate, deliverableDays, holidays, upperLimit) {
         var slotPicker = new Meanbee.EstimatedDelivery.SlotPicker();
         slotPicker.resolution = resolution;
         slotPicker.container = container;

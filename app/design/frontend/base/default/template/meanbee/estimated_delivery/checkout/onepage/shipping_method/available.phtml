@@ -44,6 +44,7 @@
                                 <?php if ($_sole) : ?>
                                     <span class="no-display"><input name="shipping_method" type="radio" value="<?php echo $_rate->getCode() ?>" id="s_method_<?php echo $_rate->getCode() ?>" checked="checked" /></span>
                                 <?php else: ?>
+                                    <?php $from = new DateTime(Mage::helper('meanbee_estimateddelivery')->getEstimatedDeliveryFrom($_rate->getCode())); ?>
                                 <input name="shipping_method"
                                        type="radio"
                                        value="<?php echo $_rate->getCode() ?>"
@@ -51,7 +52,7 @@
                                        <?php if($_rate->getCode()===$this->getAddressShippingMethod()) echo ' checked="checked"' ?>
                                        class="radio"
                                        data-resolution="<?php echo Mage::helper('meanbee_estimateddelivery')->getSelectSlotResolution($_rate->getCode()); ?>"
-                                       data-first-valid-date="<?php echo (new DateTime(Mage::helper('meanbee_estimateddelivery')->getEstimatedDeliveryFrom($_rate->getCode())))->format('Y-m-d'); ?>"
+                                       data-first-valid-date="<?php echo $from->format('Y-m-d'); ?>"
                                        data-deliverable-days="<?php echo implode(',', Mage::helper('meanbee_estimateddelivery')->getDeliverableDays($_rate->getCode()) ?: array()); ?>"
                                        data-exclude-holidays="<?php echo Mage::helper('meanbee_estimateddelivery')->getDeliveryDayHolidays($_rate->getCode()); ?>"
                                        data-upper-limit="<?php echo Mage::helper('meanbee_estimateddelivery')->getSelectSlotUpperLimit($_rate->getCode()); ?>"/>
