@@ -19,4 +19,36 @@
             </action>
         </reference>
     </adminhtml_sales_order_view>
+
+    <adminhtml_sales_order_create_index>
+        <reference name="head">
+            <action method="addCss" ifconfig="meanbee_estimateddelivery/general/enabled">
+                <stylesheet>css/meanbee/estimated_delivery.css</stylesheet>
+            </action>
+            <action method="addJs" ifconfig="meanbee_estimateddelivery/general/enabled">
+                <script>meanbee/estimated_delivery/selectslot.js</script>
+            </action>
+        </reference>
+        <reference name="form">
+            <action method="setTemplate" ifconfig="meanbee_estimateddelivery/general/enabled">
+                <template>meanbee/estimated_delivery/sales/order/create/shipping/method/form.phtml</template>
+            </action>
+        </reference>
+    </adminhtml_sales_order_create_index>
+
+    <adminhtml_sales_order_create_load_block_data>
+        <reference name="form">
+            <action method="setTemplate" ifconfig="meanbee_estimateddelivery/general/enabled">
+                <template>meanbee/estimated_delivery/sales/order/create/shipping/method/form.phtml</template>
+            </action>
+        </reference>
+    </adminhtml_sales_order_create_load_block_data>
+
+    <adminhtml_sales_order_create_load_block_shipping_method>
+        <reference name="form">
+            <action method="setTemplate" ifconfig="meanbee_estimateddelivery/general/enabled">
+                <template>meanbee/estimated_delivery/sales/order/create/shipping/method/form.phtml</template>
+            </action>
+        </reference>
+    </adminhtml_sales_order_create_load_block_shipping_method>
 </layout>
