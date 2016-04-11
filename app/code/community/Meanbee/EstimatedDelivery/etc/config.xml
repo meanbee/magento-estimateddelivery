@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Meanbee_EstimatedDelivery>
-            <version>1.3.5</version>
+            <version>1.3.6</version>
         </Meanbee_EstimatedDelivery>
     </modules>
     <global>
