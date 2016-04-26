@@ -9,6 +9,12 @@ class Meanbee_EstimatedDelivery_Model_Observer
     public function saveQuoteBefore($observer)
     {
         $quote = $observer->getQuote();
+        $this->saveDeliverySlot($quote);
+        $this->saveDispatchDate($quote);
+    }
+
+    private function saveDeliverySlot($quote)
+    {
         $fields = Mage::app()->getFrontController()->getRequest()->getPost();
         $year = isset($fields['slot-year']) ? $fields['slot-year'] : null;
         $month = isset($fields['slot-month']) ? str_pad($fields['slot-month'] + 1, 2, '0', STR_PAD_LEFT) : null;
@@ -25,5 +31,15 @@ class Meanbee_EstimatedDelivery_Model_Observer
         $quote->setDeliverySlot($deliverySlot);
     }
 
+    private function saveDispatchDate($quote) {
+        /** @var Meanbee_EstimatedDelivery_Helper_Data $helper */
+        $helper = Mage::helper('meanbee_estimateddelivery');
 
+        $shipping_method = $quote->getShippingAddress()->getShippingMethod();
+        $dispatch_date = $helper->getDispatchDate($shipping_method);
+        if (!$dispatch_date) {
+            return;
+        }
+        $quote->setDispatchDate($dispatch_date->get('YYYY-MM-dd'));
+    }
 }
