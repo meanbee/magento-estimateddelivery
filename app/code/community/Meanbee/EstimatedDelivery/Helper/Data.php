@@ -422,9 +422,9 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
         $estimatedDelivery = $this->_getEstimatedDeliveryData($shippingMethod);
         $deliveryDurationMax = $estimatedDelivery->getEstimatedDeliveryTo();
         $dispatchableDays = $estimatedDelivery->getDispatchableDays();
-
+        
+        $holidayHelper = Mage::helper('meanbee_estimateddelivery/bankHoliday');
         if ($region = $estimatedDelivery->getDeliveryTimeHolidays($shippingMethod)) {
-            $holidayHelper = Mage::helper('meanbee_estimateddelivery/bankHoliday');
             for ($i = $deliveryDurationMax; $i > 0; $dispatchDate->subDay(1)) {
                 if (!$holidayHelper->isHoliday($dispatchDate, $region)) {
                     $i--;
@@ -434,7 +434,6 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
             $dispatchDate->subDay($deliveryDurationMax);
         }
         if ($region = $estimatedDelivery->getDispatchDayHolidays()) {
-            $holidayHelper = Mage::helper('meanbee_estimateddelivery/bankHoliday');
             while (array_search($dispatchDate->toString(Zend_Date::WEEKDAY_DIGIT), $dispatchableDays) === false || $holidayHelper->isHoliday($dispatchDate, $region)) {
                 $dispatchDate->subDay(1);
             }
