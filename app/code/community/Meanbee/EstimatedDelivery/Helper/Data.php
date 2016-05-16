@@ -420,8 +420,6 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
     public function getDelayedDispatch($shippingMethod, $deliveryDate) {
         $dispatchDate = clone $deliveryDate;
         $estimatedDelivery = $this->_getEstimatedDeliveryData($shippingMethod);
-        $dispatchPreparation = $estimatedDelivery->getDispatchPreparation();
-        $deliveryDurationMin = $estimatedDelivery->getEstimatedDeliveryFrom();
         $deliveryDurationMax = $estimatedDelivery->getEstimatedDeliveryTo();
         $dispatchableDays = $estimatedDelivery->getDispatchableDays();
 
