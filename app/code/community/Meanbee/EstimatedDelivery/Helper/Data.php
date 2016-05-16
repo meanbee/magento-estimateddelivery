@@ -416,4 +416,36 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
 
         return $localDate;
     }
+
+    public function getDelayedDispatch($shippingMethod, $deliveryDate) {
+        $dispatchDate = clone $deliveryDate;
+        $estimatedDelivery = $this->_getEstimatedDeliveryData($shippingMethod);
+        $dispatchPreparation = $estimatedDelivery->getDispatchPreparation();
+        $deliveryDurationMin = $estimatedDelivery->getEstimatedDeliveryFrom();
+        $deliveryDurationMax = $estimatedDelivery->getEstimatedDeliveryTo();
+        $dispatchableDays = $estimatedDelivery->getDispatchableDays();
+
+        if ($region = $estimatedDelivery->getDeliveryTimeHolidays($shippingMethod)) {
+            $holidayHelper = Mage::helper('meanbee_estimateddelivery/bankHoliday');
+            for ($i = $deliveryDurationMax; $i > 0; $dispatchDate->subDay(1)) {
+                if (!$holidayHelper->isHoliday($dispatchDate, $region)) {
+                    $i--;
+                }
+            }
+        } else {
+            $dispatchDate->subDay($deliveryDurationMax);
+        }
+        if ($region = $estimatedDelivery->getDispatchDayHolidays()) {
+            $holidayHelper = Mage::helper('meanbee_estimateddelivery/bankHoliday');
+            while (array_search($dispatchDate->toString(Zend_Date::WEEKDAY_DIGIT), $dispatchableDays) === false || $holidayHelper->isHoliday($dispatchDate, $region)) {
+                $dispatchDate->subDay(1);
+            }
+        } else {
+            while (array_search($dispatchDate->toString(Zend_Date::WEEKDAY_DIGIT), $dispatchableDays) === false) {
+                $dispatchDate->subDay(1);
+            }
+        }
+
+        return $dispatchDate;
+    }
 }

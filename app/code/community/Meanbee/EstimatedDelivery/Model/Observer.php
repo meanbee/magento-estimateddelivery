@@ -40,6 +40,20 @@ class Meanbee_EstimatedDelivery_Model_Observer
         if (!$dispatch_date) {
             return;
         }
-        $quote->setDispatchDate($dispatch_date->get('YYYY-MM-dd'));
+        $matches = array();
+        switch ($helper->getSelectSlotResolution($shipping_method)) {
+            case Meanbee_EstimatedDelivery_Model_Source_TimeResolution::DAY:
+            case Meanbee_EstimatedDelivery_Model_Source_TimeResolution::MONTH:
+                preg_match('/^(\d{4,})-(\d{2})(?:-(\d{2}))?$/', $quote->getDelierySlot());
+                $delivery_date = new Zend_Date($quote->getDeliverySlot(), 'YYYY-MM-dd');
+                $quote->setDispatchDate($helper->getDelayedDispatch($shipping_method, $delivery_date)->get('YYYY-MM-dd'));
+                break;
+            case Meanbee_EstimatedDelivery_Model_Source_TimeResolution::WEEK:
+                // NOT IMPLEMENTED
+                break;
+            default:
+                $quote->setDispatchDate($dispatch_date->get('YYYY-MM-dd'));
+                break;
+        }
     }
 }
