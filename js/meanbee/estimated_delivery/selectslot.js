@@ -3,6 +3,10 @@
     if (!window.Meanbee) window.Meanbee = {};
     if (!window.Meanbee.EstimatedDelivery) window.Meanbee.EstimatedDelivery = {}
 
+    /* Use Prototype.js each method as a polyfill for forEach if there is no *
+     * native implementation of forEach.                                     */
+    if (!Array.prototype.forEach) Array.prototype.forEach = Array.prototype.each;
+
     /**
      * Left-pads a string to desired length.
      *
@@ -44,7 +48,7 @@
      */
     function createElement (tagName, options, ctx) {
         var element = document.createElement(tagName);
-        for (var option of Object.keys(options)) {
+        Object.keys(options).forEach(function (option) {
             if (option.substring(0,1) === '@') element.setAttribute(option.substring(1), options[option]);
             else if (option.substring(0,1) === '%' && element[option.substring(1)] !== undefined) element[option.substring(1)] = options[option];
             else if (option.substring(0,1) === '+' && element[option.substring(1)] === undefined) element[option.substring(1)] = options[option];
@@ -52,7 +56,7 @@
             else if (option.substring(0,1) === ':') element.addEventListener(option.substr(1), options[option], false);
             else if (option.substring(0,1) === '=') element.addEventListener(option.substr(1), options[option].bind(ctx), false);
             //else element.appendChild(createElement(option, options[option]));
-        }
+        });
         return element;
     };
 
