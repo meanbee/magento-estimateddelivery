@@ -3,6 +3,42 @@
     if (!window.Meanbee) window.Meanbee = {};
     if (!window.Meanbee.EstimatedDelivery) window.Meanbee.EstimatedDelivery = {}
 
+    /** Prototype.js erroneously implements a polyfill for [].filter, this fixes
+     *  the issues that ensue from an erroneous implementation.
+     *  @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter#Polyfill */
+    Array.prototype.filter = function(fun /*, thisArg*/ ) {
+        'use strict';
+
+        if (this === void 0 || this === null) {
+            throw new TypeError();
+        }
+
+        var t = Object(this);
+        var len = t.length >>> 0;
+        if (typeof fun !== 'function') {
+            throw new TypeError();
+        }
+
+        var res = [];
+        var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
+        for (var i = 0; i < len; i++) {
+            if (i in t) {
+                var val = t[i];
+
+                // NOTE: Technically this should Object.defineProperty at
+                //       the next index, as push can be affected by
+                //       properties on Object.prototype and Array.prototype.
+                //       But that method's new, and collisions should be
+                //       rare, so use the more-compatible alternative.
+                if (fun.call(thisArg, val, i, t)) {
+                    res.push(val);
+                }
+            }
+        }
+
+        return res;
+    };
+
     /**
      * Left-pads a string to desired length.
      *
@@ -61,6 +97,7 @@
             year = (new Date).getFullYear(),
             month = (new Date).getMonth(),
             start = new Date(0),
+            current = new Date(0),
             end = null,
             validDays = [0, 1, 2, 3, 4, 5, 6],
             holidays = [],
@@ -81,11 +118,27 @@
         });
         Object.defineProperty(this, "start", {
             get: function () { return start; },
-            set: function (st) { start = st instanceof Date ? st : start; }
+            set: function (st) { start = st instanceof Date ? new Date(st.getFullYear(), st.getMonth(), st.getDate()) : start; }
         });
         Object.defineProperty(this, "end", {
             get: function () { return end; },
-            set: function (fin) { end = fin instanceof Date ? fin : end; }
+            set: function (fin) { end = fin instanceof Date ? new Date(fin.getFullYear(), fin.getMonth(), fin.getDate()) : end; }
+        });
+        Object.defineProperty(this, "current", {
+            get: function () { return current; },
+            set: function (cur) {
+                if (cur instanceof Date) {
+                    current = {y: cur.getFullYear(), m: cur.getMonth(), d: cur.getDate()};
+                } else if (!isNaN(+cur.y) && (!isNaN(+cur.m) || !isNaN(+cur.w))) {
+                    current = {y: +cur.y};
+                    if (!isNaN(+cur.m)) {
+                        current.m = +cur.m;
+                        if (!isNaN(+cur.d)) current.d = +cur.d;
+                    } else if (!isNaN(+cur.w)) {
+                        current.w = +cur.w;
+                    }
+                }
+            }
         });
         Object.defineProperty(this, "validDays", {
             get: function () { return validDays; },
@@ -229,7 +282,8 @@
                             '@value': m,
                             '%disabled': (new Date(this.year, m + 1, 0) - this.start < 24*60*60) ||
                                          (new Date(this.year, m, 1) > this.end),
-                            '%required': true
+                            '%required': true,
+                            '%checked': (this.year === this.current.y && m === this.current.m)
                         })
                         if (!monthRadio.disabled && new Date(this.year, m + 1, 0) - this.start < (7 - this.validDays.length)*24*60*60) {
                             for (var i = this.start; i < new Date(this.year, m + 1, 1); i.setDate(i.getDate(i) + 1)) {
@@ -369,6 +423,7 @@
                                          !~this.validDays.indexOf(dayOfWeek)                 ||
                                          ~(Meanbee.EstimatedDelivery.holidays[this.holidays]||[]).indexOf(this.year+'-'+pad(this.month+1, 2)+'-'+pad(d+1, 2)),
                             '%required': true,
+                            '%checked': (this.year === this.current.y && this.month === this.current.m && d === this.current.d),
                             '=keydown': dayKeyhandler,
                             ':focus': radioDefocus
                         }, this));
@@ -391,7 +446,22 @@
                     }));
                     break;
             }
-        }
+            container.addEventListener('change', changeHandler.bind(this));
+        };
+
+        /**
+         * Registers event handlers.
+         * @param  string   eventName
+         * @param  function eventHandler
+         */
+        this.on = function (eventName, eventHandler) {
+            if (!this.events) this.events = {};
+            if (this.events[eventName]) {
+                this.events[eventName].push(eventHandler);
+            } else {
+                this.events[eventName] = [eventHandler];
+            }
+        };
 
         /**
          * Handles keyboard navigation according to WAI-ARIA best practices of
@@ -475,6 +545,46 @@
                     break;
             }
         };
+
+        function changeHandler(event) {
+            var fields = ['slot-day', 'slot-week', 'slot-month', 'slot-year'];
+            if (!~fields.indexOf(event.target.name)) {
+                return;
+            }
+            var cur = {};
+            fields.forEach((function (field) {
+                var elements = this.container.querySelectorAll('[name="' + field + '"]');
+                if (elements.length > 1) {
+                    elements = [].filter.call(elements, function (element) {
+                        return element.checked;
+                    }, elements);
+                }
+                if (elements.length === 1) {
+                    cur[{
+                        'slot-day': 'd',
+                        'slot-week': 'w',
+                        'slot-month': 'm',
+                        'slot-year': 'y'
+                    }[field]] = elements[0].value;
+                }
+            }).bind(this));
+            this.current = cur;
+            fire.call(this, 'change');
+        }
+    }
+
+    /**
+     * Responsibe for calling registered event handlers when an event is fired.
+     * @param  string eventName
+     */
+    function fire(eventName) {
+        if (this.events && this.events[eventName]) {
+            this.events[eventName].forEach(function (eventHandler) {
+                eventHandler({
+                    target: this
+                });
+            });
+        }
     }
 
     /**
@@ -522,10 +632,11 @@
         }, false);
     }, false);
     Meanbee.EstimatedDelivery.render = function (container, resolution, firstValidDate, deliverableDays, holidays, upperLimit) {
-        var slotPicker = new Meanbee.EstimatedDelivery.SlotPicker();
+        var slotPicker = window.slotPicker || new Meanbee.EstimatedDelivery.SlotPicker();
         slotPicker.resolution = resolution;
         slotPicker.container = container;
         slotPicker.start = new Date(firstValidDate);
+        slotPicker.current = slotPicker.current || slotPicker.start;
         slotPicker.validDays = deliverableDays.split(',');
         slotPicker.holidays = holidays;
         var upperLimitParts = upperLimit.split(/[^0-9.]/).filter(function (x) { return x.length; }).map(function (x) { return +x; });
