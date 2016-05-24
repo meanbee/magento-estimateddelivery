@@ -3,6 +3,10 @@
     if (!window.Meanbee) window.Meanbee = {};
     if (!window.Meanbee.EstimatedDelivery) window.Meanbee.EstimatedDelivery = {}
 
+    /* Use Prototype.js each method as a polyfill for forEach if there is no *
+     * native implementation of forEach.                                     */
+    if (!Array.prototype.forEach) Array.prototype.forEach = Array.prototype.each;
+
     /**
      * Left-pads a string to desired length.
      *
