@@ -132,7 +132,7 @@
             get: function () { return current; },
             set: function (cur) {
                 if (cur instanceof Date) {
-                    current = {y: cur.getFullYear(), m: cur.getMonth(), d: cur.getDate()};
+                    current = {y: cur.getFullYear(), m: cur.getMonth(), d: cur.getDate() - 1};
                 } else if (!isNaN(+cur.y) && (!isNaN(+cur.m) || !isNaN(+cur.w))) {
                     current = {y: +cur.y};
                     if (!isNaN(+cur.m)) {
@@ -451,6 +451,7 @@
                     break;
             }
             container.addEventListener('change', changeHandler.bind(this));
+            fire.call(this, 'render');
         };
 
         /**
@@ -603,14 +604,17 @@
 
     Meanbee.EstimatedDelivery.loadedShippingMethods = function () {
         var container = document.querySelector('.meanbee_estimateddelivery-selectslot .selector');
-        var selected = document.querySelector('input[name="shipping_method"][checked]');
-        if (selected && selected.getAttribute('data-resolution')) {
+        var target = document.querySelector('input[name="shipping_method"][checked], select[name="shipping_method"]');
+        if (target.selectedOptions) {
+            target = target.selectedOptions[0];
+        }
+        if (target && target.getAttribute('data-resolution')) {
             Meanbee.EstimatedDelivery.render(container,
-                   selected.getAttribute('data-resolution'),
-                   selected.getAttribute('data-first-valid-date'),
-                   selected.getAttribute('data-deliverable-days'),
-                   selected.getAttribute('data-exclude-holidays'),
-                   selected.getAttribute('data-upper-limit')
+                   target.getAttribute('data-resolution'),
+                   target.getAttribute('data-first-valid-date'),
+                   target.getAttribute('data-deliverable-days'),
+                   target.getAttribute('data-exclude-holidays'),
+                   target.getAttribute('data-upper-limit')
             );
         }
     }
@@ -619,14 +623,15 @@
         document.body.addEventListener('change', function (event) {
             if (event.target.name === 'shipping_method') {
                 var container = document.querySelector('.meanbee_estimateddelivery-selectslot .selector');
-                var resolution = event.target.getAttribute('data-resolution');
+                var target = event.target.selectedOptions ? event.target.selectedOptions[0] : event.target;
+                var resolution = target.getAttribute('data-resolution');
                 if (resolution) {
                     Meanbee.EstimatedDelivery.render(container,
                            resolution,
-                           event.target.getAttribute('data-first-valid-date'),
-                           event.target.getAttribute('data-deliverable-days'),
-                           event.target.getAttribute('data-exclude-holidays'),
-                           event.target.getAttribute('data-upper-limit')
+                           target.getAttribute('data-first-valid-date'),
+                           target.getAttribute('data-deliverable-days'),
+                           target.getAttribute('data-exclude-holidays'),
+                           target.getAttribute('data-upper-limit')
                     );
                 } else {
                     while (container.firstChild) container.removeChild(container.firstChild);
@@ -636,11 +641,11 @@
         }, false);
     }, false);
     Meanbee.EstimatedDelivery.render = function (container, resolution, firstValidDate, deliverableDays, holidays, upperLimit) {
-        var slotPicker = window.slotPicker || new Meanbee.EstimatedDelivery.SlotPicker();
+        var slotPicker = window.slotPicker;
         slotPicker.resolution = resolution;
         slotPicker.container = container;
         slotPicker.start = new Date(firstValidDate);
-        slotPicker.current = slotPicker.current || slotPicker.start;
+        slotPicker.current = slotPicker.current >= slotPicker.start ? slotPicker.current : slotPicker.start;
         slotPicker.validDays = deliverableDays.split(',');
         slotPicker.holidays = holidays;
         var upperLimitParts = upperLimit.split(/[^0-9.]/).filter(function (x) { return x.length; }).map(function (x) { return +x; });
@@ -651,8 +656,8 @@
         );
         slotPicker.end = upperLimit;
         slotPicker.render();
-        window.slotPicker = slotPicker;
 
         document.querySelector('.meanbee_estimateddelivery-selectslot').hidden = false;
     }
+    window.slotPicker = new Meanbee.EstimatedDelivery.SlotPicker();
 }());
