@@ -206,36 +206,44 @@
 
     /* START MEANBEE ESTIMATED DELIVERY */
     OrderReviewController.prototype._submitShipping = function(event, url, resultId)  {
-        if (this.shippingSelect && url && resultId) {
-            this._updateOrderSubmit(true);
-            if (this._pleaseWait) {
-                this._pleaseWait.show();
-            }
-            if ('' != this.shippingSelect.value) {
-                var parameters = {
-                    isAjax:          true,
-                    shipping_method: this.shippingSelect.value
-                };
-                if (this.shippingSelect.selectedOptions[0].getAttribute('data-resolution') && window.slotPicker) {
-                    var selectedDate = window.slotPicker.current;
-                    if (new Date(selectedDate.y, selectedDate.m, selectedDate.d + 1) >= window.slotPicker.start) {
-                        parameters['slot-year'] = selectedDate.y;
-                        parameters['slot-month'] = selectedDate.m;
-                        parameters['slot-day'] = selectedDate.d;
-                    }
+        // Run asyncronously to ensure date picker has time to render before sending update.
+        setTimeout((function () {
+            if (this.shippingSelect && url && resultId) {
+                this._updateOrderSubmit(true);
+                if (this._pleaseWait) {
+                    this._pleaseWait.show();
                 }
-                new Ajax.Updater(resultId, url, {
-                    parameters: parameters,
-                    onComplete: function() {
-                        if (this._pleaseWait) {
-                            this._pleaseWait.hide();
+                if ('' != this.shippingSelect.value) {
+                    var parameters = {
+                        isAjax:          true,
+                        shipping_method: this.shippingSelect.value
+                    };
+                    var valid = true;
+                    if (this.shippingSelect.selectedOptions[0].getAttribute('data-resolution')) {
+                        valid = false;
+                        if (window.slotPicker) {
+                            var selectedDate = window.slotPicker.current;
+                            if (new Date(selectedDate.y, selectedDate.m, selectedDate.d) >= window.slotPicker.start) {
+                                parameters['slot-year'] = selectedDate.y;
+                                parameters['slot-month'] = selectedDate.m;
+                                parameters['slot-day'] = selectedDate.d - 1; // Subtract 1, as server expects a 0-based index date component, 1-based index stored in `selectedDate.d`.
+                                valid = true;
+                            }
                         }
-                    }.bind(this),
-                    onSuccess: this._onSubmitShippingSuccess.bind(this),
-                    evalScripts: true
-                });
+                    }
+                    new Ajax.Updater(resultId, url, {
+                        parameters: parameters,
+                        onComplete: function() {
+                            if (this._pleaseWait && valid) {
+                                this._pleaseWait.hide();
+                            }
+                        }.bind(this),
+                        onSuccess: this._onSubmitShippingSuccess.bind(this),
+                        evalScripts: true
+                    });
+                }
             }
-        }
+        }).bind(this), 0);
     }
     /* END MEANBEE ESTIMATED DELIVERY */
 
@@ -246,10 +254,7 @@
 
     /* START MEANBEE ESTIMATED DELIVERY */
     window.slotPicker.on('change', function (event) {
-        PayPalExpressAjax._submitShipping(event, 'https://dev.atco.co.uk/paypal/express/saveShippingMethod/', 'details-reload');
-    });
-    window.slotPicker.on('render', function (event) {
-        PayPalExpressAjax._submitShipping(event, 'https://dev.atco.co.uk/paypal/express/saveShippingMethod/', 'details-reload');
+        PayPalExpressAjax._submitShipping(event, '<?php echo Mage::getUrl('*/*/saveShippingMethod'); ?>', 'details-reload');
     });
     /* END MEANBEE ESTIMATED DELIVERY */
     //]]>

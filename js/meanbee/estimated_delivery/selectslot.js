@@ -132,7 +132,7 @@
             get: function () { return current; },
             set: function (cur) {
                 if (cur instanceof Date) {
-                    current = {y: cur.getFullYear(), m: cur.getMonth(), d: cur.getDate() - 1};
+                    current = {y: cur.getFullYear(), m: cur.getMonth(), d: cur.getDate()};
                 } else if (!isNaN(+cur.y) && (!isNaN(+cur.m) || !isNaN(+cur.w))) {
                     current = {y: +cur.y};
                     if (!isNaN(+cur.m)) {
@@ -427,7 +427,8 @@
                                          !~this.validDays.indexOf(dayOfWeek)                 ||
                                          ~(Meanbee.EstimatedDelivery.holidays[this.holidays]||[]).indexOf(this.year+'-'+pad(this.month+1, 2)+'-'+pad(d+1, 2)),
                             '%required': true,
-                            '%checked': (this.year === this.current.y && this.month === this.current.m && d === this.current.d),
+                            // (d + 1) as date cells use a 0-based index `d`, whereas current uses a 1-based index to ease compatabilty with `new Date`
+                            '%checked': (this.year === this.current.y && this.month === this.current.m && (d + 1) === this.current.d),
                             '=keydown': dayKeyhandler,
                             ':focus': radioDefocus
                         }, this));
@@ -645,7 +646,7 @@
         slotPicker.resolution = resolution;
         slotPicker.container = container;
         slotPicker.start = new Date(firstValidDate);
-        slotPicker.current = slotPicker.current >= slotPicker.start ? slotPicker.current : slotPicker.start;
+        slotPicker.current = new Date(slotPicker.current.y, slotPicker.current.m, slotPicker.current.d) >= slotPicker.start ? slotPicker.current : slotPicker.start;
         slotPicker.validDays = deliverableDays.split(',');
         slotPicker.holidays = holidays;
         var upperLimitParts = upperLimit.split(/[^0-9.]/).filter(function (x) { return x.length; }).map(function (x) { return +x; });
