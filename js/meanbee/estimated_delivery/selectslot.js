@@ -574,6 +574,7 @@
                     }[field]] = elements[0].value;
                 }
             }).bind(this));
+            cur.d = ~cur.d ? cur.d + 1 : void 0; // Add 1 to date component to convert from 0-based to 1-based index.
             this.current = cur;
             fire.call(this, 'change');
         }
@@ -646,7 +647,9 @@
         slotPicker.resolution = resolution;
         slotPicker.container = container;
         slotPicker.start = new Date(firstValidDate);
-        slotPicker.current = new Date(slotPicker.current.y, slotPicker.current.m, slotPicker.current.d) >= slotPicker.start ? slotPicker.current : slotPicker.start;
+        if (new Date(slotPicker.current.y, slotPicker.current.m, slotPicker.current.d) < slotPicker.start) {
+            slotPicker.current = {y: slotPicker.start.getFullYear(), m: slotPicker.start.getMonth(), d: slotPicker.start.getDate()};
+        }
         slotPicker.validDays = deliverableDays.split(',');
         slotPicker.holidays = holidays;
         var upperLimitParts = upperLimit.split(/[^0-9.]/).filter(function (x) { return x.length; }).map(function (x) { return +x; });
