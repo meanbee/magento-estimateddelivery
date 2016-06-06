@@ -158,15 +158,24 @@
     if ($('update_shipping_method_submit')) {
         $('update_shipping_method_submit').hide();
     }
-
     <?php if ($this->getUseAjax()):?>
     OrderReviewController.prototype._submitOrder = function() {
         if (this._canSubmitOrder) {
             if (this._pleaseWait) {
                 this._pleaseWait.show();
             }
+            /* START MEANBEE ESTIMATED DELIVERY */
+            var selectedDate = window.slotPicker.current;
+            if (this.shippingSelect.selectedOptions[0].getAttribute('data-resolution') && new Date(selectedDate.y, selectedDate.m, selectedDate.d) < window.slotPicker.start) {
+                if (this._pleaseWait) {
+                    this._pleaseWait.hide();
+                }
+                alert('<?php echo $this->jsQuoteEscape(Mage::helper('meanbee_estimateddelivery')->__('Please select a delivery date.')); ?>');
+                return;
+            }
+            /* END MEANBEE ESTIMATED DELIVERY */
             new Ajax.Request(this.form.action, {
-                parameters: {isAjax: 1, method: 'POST'},
+                parameters: {isAjax: true, method: 'POST'},
                 onSuccess: function(transport) {
                     try{
                         response = eval('(' + transport.responseText + ')');
@@ -201,49 +210,65 @@
                 }
             });
         }
-    }
-    <?php endif ?>
+    };
+    <?php else:?>
+    /* START MEANBEE ESTIMATED DELIVERY */
+    OrderReviewController.prototype._submitOrder = function() {
+        if (this._canSubmitOrder && (this.reloadByShippingSelect || this._validateForm())) {
+            var selectedDate = window.slotPicker.current;
+            if (this.shippingSelect.selectedOptions[0].getAttribute('data-resolution') && new Date(selectedDate.y, selectedDate.m, selectedDate.d) < window.slotPicker.start) {
+                if (this._pleaseWait) {
+                    this._pleaseWait.hide();
+                }
+                alert('<?php echo $this->jsQuoteEscape(Mage::helper('meanbee_estimateddelivery')->__('Please select a delivery date.')); ?>');
+                return;
+            }
+            this.form.submit();
+            this._updateOrderSubmit(true);
+            if (this._ubpdateOrderButton) {
+                this._ubpdateOrderButton.addClassName('no-checkout');
+                this._ubpdateOrderButton.setStyle({opacity:.5});
+            }
+            if (this._pleaseWait) {
+                this._pleaseWait.show();
+            }
+            return;
+        }
+        this._updateOrderSubmit(true);
+    };
+    /* END MEANBEE ESTIMATED DELIVERY */
+    <?php endif;?>
 
     /* START MEANBEE ESTIMATED DELIVERY */
     OrderReviewController.prototype._submitShipping = function(event, url, resultId)  {
-        // Run asyncronously to ensure date picker has time to render before sending update.
-        setTimeout((function () {
-            if (this.shippingSelect && url && resultId) {
-                this._updateOrderSubmit(true);
-                if (this._pleaseWait) {
-                    this._pleaseWait.show();
-                }
-                if ('' != this.shippingSelect.value) {
-                    var parameters = {
-                        isAjax:          true,
-                        shipping_method: this.shippingSelect.value
-                    };
-                    var valid = true;
-                    if (this.shippingSelect.selectedOptions[0].getAttribute('data-resolution')) {
-                        valid = false;
-                        if (window.slotPicker) {
-                            var selectedDate = window.slotPicker.current;
-                            if (new Date(selectedDate.y, selectedDate.m, selectedDate.d) >= window.slotPicker.start) {
-                                parameters['slot-year'] = selectedDate.y;
-                                parameters['slot-month'] = selectedDate.m;
-                                parameters['slot-day'] = selectedDate.d - 1; // Subtract 1, as server expects a 0-based index date component, 1-based index stored in `selectedDate.d`.
-                                valid = true;
-                            }
-                        }
-                    }
-                    new Ajax.Updater(resultId, url, {
-                        parameters: parameters,
-                        onComplete: function() {
-                            if (this._pleaseWait && valid) {
-                                this._pleaseWait.hide();
-                            }
-                        }.bind(this),
-                        onSuccess: this._onSubmitShippingSuccess.bind(this),
-                        evalScripts: true
-                    });
-                }
+        if (this.shippingSelect && url && resultId) {
+            this._updateOrderSubmit(true);
+            if (this._pleaseWait) {
+                this._pleaseWait.show();
             }
-        }).bind(this), 0);
+            if ('' != this.shippingSelect.value) {
+                var parameters = {
+                    isAjax:          true,
+                    shipping_method: this.shippingSelect.value
+                };
+                var selectedDate = window.slotPicker.current;
+                if (this.shippingSelect.selectedOptions[0].getAttribute('data-resolution') && new Date(selectedDate.y, selectedDate.m, selectedDate.d) >= window.slotPicker.start) {
+                    parameters['slot-year'] = selectedDate.y;
+                    parameters['slot-month'] = selectedDate.m;
+                    parameters['slot-day'] = selectedDate.d - 1; // Subtract 1, as server expects a 0-based index date component, 1-based index stored in `selectedDate.d`.
+                }
+                new Ajax.Updater(resultId, url, {
+                    parameters: parameters,
+                    onComplete: function() {
+                        if (this._pleaseWait) {
+                            this._pleaseWait.hide();
+                        }
+                    }.bind(this),
+                    onSuccess: this._onSubmitShippingSuccess.bind(this),
+                    evalScripts: true
+                });
+            }
+        }
     }
     /* END MEANBEE ESTIMATED DELIVERY */
 
@@ -254,6 +279,9 @@
 
     /* START MEANBEE ESTIMATED DELIVERY */
     window.slotPicker.on('change', function (event) {
+        PayPalExpressAjax._submitShipping(event, '<?php echo Mage::getUrl('*/*/saveShippingMethod'); ?>', 'details-reload');
+    });
+    window.slotPicker.on('render', function (event) {
         PayPalExpressAjax._submitShipping(event, '<?php echo Mage::getUrl('*/*/saveShippingMethod'); ?>', 'details-reload');
     });
     /* END MEANBEE ESTIMATED DELIVERY */
