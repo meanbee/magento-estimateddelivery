@@ -6,13 +6,19 @@ class Meanbee_EstimatedDelivery_Model_Observer
      *
      * @param  Varien_Event_Observer $observer
      */
-    public function saveQuoteBefore($observer)
+    public function saveDataToQuote($observer)
     {
-        $quote = $observer->getQuote();
+        $quote = $observer->getQuote() ?: Mage::getSingleton('checkout/session')->getQuote();
         $this->saveDeliverySlot($quote);
         $this->saveDispatchDate($quote);
+        if ($observer->getEvent()->getName() !== 'sales_quote_save_before') {
+            $quote->save();
+        }
     }
 
+    /**
+     * @param Mage_Sales_Model_Quote $quote
+     */
     private function saveDeliverySlot($quote)
     {
         $fields = Mage::app()->getFrontController()->getRequest()->getPost();
@@ -20,6 +26,10 @@ class Meanbee_EstimatedDelivery_Model_Observer
         $month = isset($fields['slot-month']) ? str_pad($fields['slot-month'] + 1, 2, '0', STR_PAD_LEFT) : null;
         $week = isset($fields['slot-week']) ? $fields['slot-week'] + 1  : null;
         $day = isset($fields['slot-day']) ? str_pad($fields['slot-day'] + 1, 2, '0', STR_PAD_LEFT) : null;
+        $resolution = true;
+        if (isset($fields['shipping_method'])) {
+            $resolution = Mage::helper('meanbee_estimateddelivery')->getSelectSlotResolution($fields['shipping_method']);
+        }
         $deliverySlot = null;
         if ($year && $month && $day) {
             $deliverySlot = "{$year}-{$month}-{$day}";
@@ -27,8 +37,21 @@ class Meanbee_EstimatedDelivery_Model_Observer
             // NOT IMPLEMENTED
         } else if ($year && $month) {
             $deliverySlot = "{$year}-{$month}";
-        } else return;
-        $quote->setDeliverySlot($deliverySlot);
+        } else if (!$quote->getDeliverySlot() && isset($fields['shipping_method'])) {
+            $earliestDelivery = Mage::helper('meanbee_estimateddelivery')->getEstimatedDeliveryFrom($fields['shipping_method']);
+            switch ($resolution) {
+                case Meanbee_EstimatedDelivery_Model_Source_TimeResolution::DAY:
+                    $deliverySlot = $earliestDelivery->get('YYYY-MM-dd');
+                    break;
+                case Meanbee_EstimatedDelivery_Model_Source_TimeResolution::WEEK:
+                    // NOT IMPLEMENTED
+                    break;
+                case Meanbee_EstimatedDelivery_Model_Source_TimeResolution::MONTH:
+                    $deliverySlot = $earliestDelivery->get('YYYY-MM');
+                    break;
+            }
+        }
+        $quote->setDeliverySlot($resolution ? $deliverySlot : null);
     }
 
     private function saveDispatchDate($quote) {

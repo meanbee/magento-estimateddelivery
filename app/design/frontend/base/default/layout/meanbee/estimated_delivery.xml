@@ -68,4 +68,20 @@
             </action>
         </reference>
     </onestepcheckout_ajax_save_billing>
+
+    <paypal_express_review>
+        <reference name="head">
+            <action method="addCss" ifconfig="meanbee_estimateddelivery/general/enabled">
+                <stylesheet>css/meanbee/estimated_delivery.css</stylesheet>
+            </action>
+            <action method="addJs" ifconfig="meanbee_estimateddelivery/general/enabled">
+                <script>meanbee/estimated_delivery/selectslot.js</script>
+            </action>
+        </reference>
+        <reference name="paypal.express.review">
+            <action method="setTemplate" ifconfig="meanbee_estimateddelivery/general/enabled">
+                <template>meanbee/estimated_delivery/paypal/express/review.phtml</template>
+            </action>
+        </reference>
+    </paypal_express_review>
 </layout>
