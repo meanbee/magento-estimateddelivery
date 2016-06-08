@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Meanbee_EstimatedDelivery>
-            <version>1.4.1</version>
+            <version>1.5.1</version>
         </Meanbee_EstimatedDelivery>
     </modules>
     <global>
@@ -47,10 +47,19 @@
                     <save_before>
                         <type>singleton</type>
                         <class>meanbee_estimateddelivery/observer</class>
-                        <method>saveQuoteBefore</method>
+                        <method>saveDataToQuote</method>
                     </save_before>
                 </observers>
             </sales_quote_save_before>
+            <controller_action_predispatch_paypal_express_saveShippingMethod>
+                <observers>
+                    <paypal_save>
+                        <type>singleton</type>
+                        <class>meanbee_estimateddelivery/observer</class>
+                        <method>saveDataToQuote</method>
+                    </paypal_save>
+                </observers>
+            </controller_action_predispatch_paypal_express_saveShippingMethod>
         </events>
         <fieldsets>
             <sales_convert_quote>
