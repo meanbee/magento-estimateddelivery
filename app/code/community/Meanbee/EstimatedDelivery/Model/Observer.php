@@ -26,18 +26,16 @@ class Meanbee_EstimatedDelivery_Model_Observer
         $month = isset($fields['slot-month']) ? str_pad($fields['slot-month'] + 1, 2, '0', STR_PAD_LEFT) : null;
         $week = isset($fields['slot-week']) ? $fields['slot-week'] + 1  : null;
         $day = isset($fields['slot-day']) ? str_pad($fields['slot-day'] + 1, 2, '0', STR_PAD_LEFT) : null;
-        $resolution = true;
-        if (isset($fields['shipping_method'])) {
-            $resolution = Mage::helper('meanbee_estimateddelivery')->getSelectSlotResolution($fields['shipping_method']);
-        }
-        $deliverySlot = null;
+        $shippingMethod = isset($fields['shipping_method']) ? $fields['shipping_method'] : $quote->getShippingAddress()->getShippingMethod();
+        $resolution = Mage::helper('meanbee_estimateddelivery')->getSelectSlotResolution($shippingMethod);
+        $deliverySlot = $quote->getDeliverySlot();
         if ($year && $month && $day) {
             $deliverySlot = "{$year}-{$month}-{$day}";
         } else if ($year && $month && $week) {
             // NOT IMPLEMENTED
         } else if ($year && $month) {
             $deliverySlot = "{$year}-{$month}";
-        } else if (!$quote->getDeliverySlot() && isset($fields['shipping_method'])) {
+        } else if (!$deliverySlot && isset($fields['shipping_method'])) {
             $earliestDelivery = Mage::helper('meanbee_estimateddelivery')->getEstimatedDeliveryFrom($fields['shipping_method']);
             switch ($resolution) {
                 case Meanbee_EstimatedDelivery_Model_Source_TimeResolution::DAY:
