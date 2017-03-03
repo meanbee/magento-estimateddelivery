@@ -313,15 +313,13 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
         $localDate = clone $date;
         $estimatedDelivery = $this->_getEstimatedDeliveryData($shippingMethod);
 
-        $region = $estimatedDelivery->getDeliveryTimeHolidays();
-        $holidayHelper = Mage::helper('meanbee_estimateddelivery/bankHoliday');
-        for ($i = $offset; $i > 0; $localDate->addDay(1)) {
-            if ($region === null || !$holidayHelper->isHoliday($localDate, $region)) {
-                $i--;
-            }
+        for ($i = 0; $i < $offset; $i++) {
+            // Add each day of travel time individually and check whether this is a
+            // day that could be considered as transit. We don't have a "transitable days"
+            // setting so we use the delivery day and national holiday settings.
+            $localDate->addDay(1);
+            $localDate = $this->_computeClosestValidDate($estimatedDelivery, $localDate, self::DELIVERY);
         }
-
-        $localDate = $this->_computeClosestValidDate($estimatedDelivery, $localDate, self::DELIVERY);
 
         return $localDate;
     }
@@ -352,6 +350,7 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
                 break;
         }
         $holidayHelper = Mage::helper('meanbee_estimateddelivery/bankHoliday');
+
         while(true) {
             $day = $localDate->toString(Zend_Date::WEEKDAY_DIGIT);
             if (in_array($day, $validDays) && ($region === null || !$holidayHelper->isHoliday($localDate, $region))) {
@@ -359,6 +358,7 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
             }
             $localDate->addDay(1);
         }
+
         return $localDate;
     }
 
@@ -422,7 +422,6 @@ class Meanbee_EstimatedDelivery_Helper_Data extends Mage_Core_Helper_Abstract {
         $estimatedDelivery = $this->_getEstimatedDeliveryData($shippingMethod);
         $deliveryDurationMax = $estimatedDelivery->getEstimatedDeliveryTo();
         $dispatchableDays = $estimatedDelivery->getDispatchableDays();
-        
         $holidayHelper = Mage::helper('meanbee_estimateddelivery/bankHoliday');
         if ($region = $estimatedDelivery->getDeliveryTimeHolidays($shippingMethod)) {
             for ($i = $deliveryDurationMax; $i > 0; $dispatchDate->subDay(1)) {
