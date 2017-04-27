@@ -29,6 +29,53 @@
                         </enabled>
                     </fields>
                 </general>
+                <holidays translate="label">
+                    <label>Holidays</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>200</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <expanded>1</expanded>
+                    <fields>
+                        <holiday_list_1 translate="label">
+                            <label>Holiday List 1</label>
+                            <comment>List of holiday dates, one per line in format YYYY-MM-DD e.g. 2012-06-23</comment>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </holiday_list_1>
+                        <holiday_list_2 translate="label">
+                            <label>Holiday List 2</label>
+                            <comment>List of holiday dates, one per line in format YYYY-MM-DD e.g. 2012-06-23</comment>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </holiday_list_2>
+                        <holiday_list_3 translate="label">
+                            <label>Holiday List 3</label>
+                            <comment>List of holiday dates, one per line in format YYYY-MM-DD e.g. 2012-06-23</comment>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </holiday_list_3>
+                        <holiday_list_4 translate="label">
+                            <label>Holiday List 4</label>
+                            <comment>List of holiday dates, one per line in format YYYY-MM-DD e.g. 2012-06-23</comment>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </holiday_list_4>
+                    </fields>
+                </holidays>
             </groups>
         </meanbee_estimateddelivery>
     </sections>
