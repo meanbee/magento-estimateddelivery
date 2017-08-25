@@ -1,0 +1,16 @@
+{
+	"name": "meanbee/magento-estimateddelivery",
+	"description": "Magento 1 Extension to provide delivery date estimates for each shipping method.",
+	"homepage": "https://www.meanbee.com/magento-extensions/estimated-delivery.html",
+	"type": "magento-module",
+	"version": "1.5.0",
+	"authors": [
+        		{
+			"name": "Meanbee",
+			"email": "hello@meanbee.com"
+        		}
+    		],
+	"require":{
+			"magento-hackathon/magento-composer-installer":"^3.0.0"
+		}
+}
