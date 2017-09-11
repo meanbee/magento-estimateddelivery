@@ -5,6 +5,8 @@ class Meanbee_EstimatedDelivery_Helper_BankHoliday extends Mage_Core_Helper_Abst
     const DATE_FORMAT       = '/^\d{4}-\d{2}-\d{2}$/';
     const BANK_HOLIDAY_API_ENDPOINT = 'http://www.gov.uk/bank-holidays.json';
 
+    protected $_holidays;
+
     protected function queryAPI() {
         $result = file_get_contents(self::BANK_HOLIDAY_API_ENDPOINT);
         $result = Zend_Json::decode($result);
@@ -12,6 +14,13 @@ class Meanbee_EstimatedDelivery_Helper_BankHoliday extends Mage_Core_Helper_Abst
     }
 
     public function getBankHolidays($region) {
+        if (in_array($region, array(Meanbee_EstimatedDelivery_Model_Source_HolidayRegions::LIST1,
+                                    Meanbee_EstimatedDelivery_Model_Source_HolidayRegions::LIST2,
+                                    Meanbee_EstimatedDelivery_Model_Source_HolidayRegions::LIST3,
+                                    Meanbee_EstimatedDelivery_Model_Source_HolidayRegions::LIST4))) {
+            $this->_holidays[$region] = preg_split("/\r\n|\n|\r/", Mage::getStoreConfig('meanbee_estimateddelivery/holidays/' . $region));
+            return $this->_holidays[$region];
+        }
         if (!in_array($region, array(Meanbee_EstimatedDelivery_Model_Source_HolidayRegions::ENGLAND_AND_WALES,
                                      Meanbee_EstimatedDelivery_Model_Source_HolidayRegions::SCOTLAND,
                                      Meanbee_EstimatedDelivery_Model_Source_HolidayRegions::NORTHERN_IRELAND))) {
